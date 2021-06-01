@@ -14,7 +14,7 @@ end
 
 # Initialize an impurity
 function new_impurity(ϵ)
-    return ImpurityState(ϵ, Coupling[])
+    return ImpurityState(ϵ, Array{Coupling}(undef, 0))
 end
 
 # Add coupling to an existing impurity
@@ -46,11 +46,11 @@ function new_graphene_system()
     return GrapheneSystem(
         0.0,
         0.0,
-        ImpurityState[],
+        Array{ImpurityState}(undef, 0),
         Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}(),
-        Array{Float64,2}[],
-        Array{Float64,2}[],
-        Vector{GrapheneCoord}[],
+        Array{Float64}(undef, 0, 0),
+        Array{Float64}(undef, 0, 0),
+        Array{GrapheneCoord}(undef, 0),
     )
 end
 
@@ -74,9 +74,10 @@ function add_perturbation!(
     c[(a, b)] = Δ
     c[(b, a)] = Δ
     s.pert = c
+    scattering!(s)
 end
 
-function delete_perturbation!(
+function remove_perturbation!(
     s::GrapheneSystem,
     a::GrapheneCoord,
     b::GrapheneCoord,
@@ -85,14 +86,17 @@ function delete_perturbation!(
     delete!(c, (a, b))
     delete!(c, (b, a))
     s.pert = c
+    scattering!(s)
 end
 
 function add_impurity!(s::GrapheneSystem, imp::ImpurityState)
     s.imps = push!(s.imps, imp)
+    scattering!(s)
 end
 
 function remove_impurity!(s::GrapheneSystem, ind::Int)
     s.imps = deleteat!(s.imps, ind)
+    scattering!(s)
 end
 
 function scattering!(s::GrapheneSystem)
@@ -182,3 +186,18 @@ function Γ(z, s::GrapheneSystem)
     res = Γ0 + δΓ(z, s)
     return res
 end
+# imp1 = new_impurity(.3)
+# imp2 = new_impurity(.7)
+# add_coupling!(imp1,2.0,graphene_A(0,0))
+# add_perturbation!(zz,graphene_A(0,0), graphene_B(2,1), 3.4)
+# #
+# add_coupling!(imp2, 1.4, graphene_B(5,5))
+# # imp1
+# zz = new_graphene_system()
+# add_impurity!(zz,imp1)
+# add_impurity!(zz,imp2)
+# zz
+# # Array{Float64}(undef, 0, 0)
+# zz
+# add_perturbation!(zz, graphene_A(0,0), graphene_B(5,5),7.0)
+#
