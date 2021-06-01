@@ -22,8 +22,7 @@ export graphene_A,
     add_coupling!,
     remove_coupling!,
     add_impurity!,
-    remove_impurity!,
-    scattering!
+    remove_impurity!
 
 include("defects.jl")
 
