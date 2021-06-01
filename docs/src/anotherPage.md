@@ -4,7 +4,6 @@
   GrapheneQFT
 ```
 
-
 ## Module Index
 
 ```@index
