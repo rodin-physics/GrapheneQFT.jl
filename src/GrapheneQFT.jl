@@ -15,11 +15,16 @@ export graphene_A,
     graphene_propagator,
     graphene_propagator_matrix,
     new_graphene_system,
-    set_T,
+    set_T!,
+    set_μ!,
     add_perturbation!,
+    remove_perturbation!,
+    add_coupling!,
+    remove_coupling!,
+    add_impurity!,
+    remove_impurity!,
     scattering!
 
-# include("pristine_graphene.jl")
 include("defects.jl")
 
 end # module
