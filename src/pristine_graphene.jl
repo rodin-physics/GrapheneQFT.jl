@@ -1,6 +1,8 @@
-include("aux_integrals.jl")
-# Graphene lattice parameters. The lengths are in Å
+## Graphene parameters
+# All lengths are in Å
 const graphene_lattice_constant = 2.46
+# Nearest-neighbor hopping parameter
+const NN_hopping = 2.8
 
 """
     Location(x::Float64, y::Float64, z::Float64)
@@ -100,7 +102,7 @@ function graphene_B(u::Int, v::Int)
 end
 
 """
-    neighbors(atom::GrapheneCoord)
+    graphene_neighbors(atom::GrapheneCoord)
 
 Determine the nearest neighbors of an atom.
 
@@ -110,7 +112,7 @@ Determine the nearest neighbors of an atom.
 # Output
 * A Vector of [`GrapheneCoord`](@ref) containing the neighbors of `atom`
 """
-function neighbors(atom::GrapheneCoord)
+function graphene_neighbors(atom::GrapheneCoord)
     u = atom.u
     v = atom.v
     if atom.sublattice == A
@@ -130,13 +132,72 @@ function neighbors(atom::GrapheneCoord)
     end
 end
 
+## Propagator
+# Integrals used in computing the propagator
+@inline function Ω_Integrand(z, u, v, x::Float64)
+    t = NN_hopping
+    W = ((z / t)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
+    return (
+        exp(1.0im * (u - v) * x) / cos(x) *
+        ((W - √(W - 1) * √(W + 1))^abs.(u + v)) / (√(W - 1) * √(W + 1))
+    )
+end
+
+@inline function Ω(z, u, v)
+    t = NN_hopping
+    return ((quadgk(
+        x -> Ω_Integrand(z, u, v, x) / (8.0 * π * t^2),
+        0.0,
+        2.0 * π,
+    ))[1])
+end
+
+@inline function Ωp_Integrand(z, u, v, x::Float64)
+    t = NN_hopping
+    W = ((z / t)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
+    return (
+        2 *
+        exp(1.0im * (u - v) * x) *
+        ((W - √(W - 1) * √(W + 1))^abs.(u + v + 1)) / (√(W - 1) * √(W + 1))
+    )
+end
+
+@inline function Ωp(z, u, v)
+    t = NN_hopping
+    return ((quadgk(
+        x -> Ωp_Integrand(z, u, v, x) / (8.0 * π * t^2),
+        0.0,
+        2.0 * π,
+    ))[1])
+end
+
+@inline function Ωn_Integrand(z, u, v, x::Float64)
+    t = NN_hopping
+    W = ((z / t)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
+    return (
+        2 *
+        exp(1.0im * (u - v) * x) *
+        ((W - √(W - 1) * √(W + 1))^abs.(u + v - 1)) / (√(W - 1) * √(W + 1))
+    )
+end
+
+@inline function Ωn(z, u, v)
+    t = NN_hopping
+    return ((quadgk(
+        x -> Ωn_Integrand(z, u, v, x) / (8.0 * π * t^2),
+        0.0,
+        2.0 * π,
+    ))[1])
+end
+
+
 """
-    propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
+    graphene_propagator(atom1::GrapheneCoord, atom2::GrapheneCoord, z)
 
 The propagator function picks out the correct element of the Ξ matrix based
-on the sublattices of the graphene coordinates
+on the sublattices of the graphene coordinates.
 """
-function propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
+function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
     t = NN_hopping
     u = a_l.u - a_m.u
     v = a_l.v - a_m.v
@@ -151,8 +212,12 @@ function propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
     end
 end
 
-# The (I^T Ξ I) Matrix. We use the fact that the matrix is symmetric to speed
-# up the calculation
+"""
+    graphene_propagator_matrix(z, coords::Vector{GrapheneCoord})
+
+Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
+matrix. The calculation is sped up using the fact that the matrix is symmetric.
+"""
 function propagator_matrix(z, Coords::Vector{GrapheneCoord})
     len_coords = length(Coords)
     out = zeros(ComplexF64, len_coords, len_coords)
