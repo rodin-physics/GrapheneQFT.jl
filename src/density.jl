@@ -1,4 +1,4 @@
-include("../defects/scattering.jl")
+include("../defects.jl")
 
 # Integrand used to calculate the local density correction in graphene
 function δρ_Graphene_Integrand(
