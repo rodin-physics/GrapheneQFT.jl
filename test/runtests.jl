@@ -17,20 +17,32 @@ r2 = rand(-20:20, 10)
 @test map((x, y) -> graphene_B(x, y), r1, r2) ==
       map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.B), r1, r2)
 
+# @test quadgk(
+#       x ->
+#             -G_R(
+#                   x + 1im * 1e-4,
+#                   graphene_A(0, 0),
+#                   graphene_A(0, 0),
+#                   new_graphene_system(),
+#             ) |> imag,
+#       -Inf,
+#       Inf,
+# )[1] ≈ π
+
+my_system = new_graphene_system()
+imp1 = new_impurity(0.21)
+imp2 = new_impurity(2.1)
+add_coupling!(imp1, 3.5, graphene_A(rand(-10:10), rand(-10:10)))
+add_coupling!(imp2, 3.5, graphene_B(rand(-10:10), rand(-10:10)))
+add_impurity!(my_system, imp1)
+add_impurity!(my_system, imp2)
+
+a1 = random_atom()
 @test quadgk(
-      x ->
-            -G_R(
-                  x + 1im * 1e-4,
-                  graphene_A(0, 0),
-                  graphene_A(0, 0),
-                  new_graphene_system(),
-            ) |> imag,
+      x -> -G_R(x + 1im * 1e-4, a1, a1, new_graphene_system()) |> imag,
       -Inf,
       Inf,
 )[1] ≈ π
-
-
-
 
 #
 #
