@@ -19,28 +19,31 @@ r2 = rand(-20:20, 10)
 
 @test quadgk(
       x ->
-            -GrapheneQFT.graphene_propagator(
-                  graphene_A(0, 0),
-                  graphene_A(0, 0),
+            -G_R(
                   x + 1im * 1e-4,
+                  graphene_A(0, 0),
+                  graphene_A(0, 0),
+                  new_graphene_system(),
             ) |> imag,
       -Inf,
       Inf,
 )[1] ≈ π
 
 
-# r_array_1 = map(x -> random_atom(), 1:20)
-# r_array_2 = map(x -> random_atom(), 1:20)
-# r_complex = 30 .* (rand(20) .- 1 / 2) + 30im .* (rand(20) .- 1 / 2)
+
+
 #
-# @test map(
-#       (x, y, z) -> graphene_propagator(x, y, z),
-#       r_array_1,
-#       r_array_2,
-#       r_complex,
-# ) == map(
-#       (x, y, z) -> graphene_propagator(x, y, z),
-#       r_array_2,
-#       r_array_1,
-#       r_complex,
-# )
+#
+#
+# δG_R(1im, graphene_A(0, 0), graphene_A(0, 0), new_graphene_system())
+# #
+# new_graphene_system().scattering_atoms
+# new_graphene_system().scattering_atoms
+
+
+#
+#
+# zz =  new_graphene_system()
+#
+# zz.scattering_atoms
+#
