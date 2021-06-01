@@ -7,6 +7,7 @@ module GrapheneQFT
 using MLStyle
 using Cubature
 using QuadGK
+using LinearAlgebra
 
 export graphene_A,
     graphene_B,
@@ -22,7 +23,11 @@ export graphene_A,
     add_coupling!,
     remove_coupling!,
     add_impurity!,
-    remove_impurity!
+    remove_impurity!,
+    δG_R,
+    G_R,
+    δΓ,
+    Γ
 
 include("defects.jl")
 

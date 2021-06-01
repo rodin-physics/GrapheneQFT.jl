@@ -136,17 +136,18 @@ end
 
 function δG_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
     Γ0 = map(x -> z - x.ϵ, s.imps) |> Diagonal |> inv
-    prop_mat = propagator_matrix(z, map(x -> x.coord, s.scattering_atoms))
+    prop_mat = propagator_matrix(z, s.scattering_atoms)
     D =
         (s.Δ .+ s.V * Γ0 * transpose(s.V)) * inv(
             Diagonal(ones(length(s.scattering_atoms))) .-
             prop_mat * (s.Δ .+ s.V * Γ0 * transpose(s.V)),
         )
-    PropVectorR = map(x -> propagator(x.coord, a2, z), s.scattering_atoms)
+    PropVectorR = map(x -> propagator(x, a2, z), s.scattering_atoms)
     if a1 == a2
         PropVectorL = permutedims(PropVectorR)
     else
-        PropVectorL = map(x -> propagator(a1, x.coord, z), s.scattering_atoms)
+        PropVectorL =
+            map(x -> propagator(a1, x, z), s.scattering_atoms) |> permutedims
     end
     res = (PropVectorL*D*PropVectorR)[1]
     return res
@@ -186,18 +187,3 @@ function Γ(z, s::GrapheneSystem)
     res = Γ0 + δΓ(z, s)
     return res
 end
-# imp1 = new_impurity(.3)
-# imp2 = new_impurity(.7)
-# add_coupling!(imp1,2.0,graphene_A(0,0))
-# add_perturbation!(zz,graphene_A(0,0), graphene_B(2,1), 3.4)
-# #
-# add_coupling!(imp2, 1.4, graphene_B(5,5))
-# # imp1
-# zz = new_graphene_system()
-# add_impurity!(zz,imp1)
-# add_impurity!(zz,imp2)
-# zz
-# # Array{Float64}(undef, 0, 0)
-# zz
-# add_perturbation!(zz, graphene_A(0,0), graphene_B(5,5),7.0)
-#
