@@ -5,7 +5,11 @@ const graphene_lattice_constant = 2.46
 const NN_hopping = 2.8
 
 """
-    Location(x::Float64, y::Float64, z::Float64)
+    struct Location
+        x::Float64
+        y::Float64
+        z::Float64
+    end
 
 A structure describing a point in 3D space, with the lengths in Å
 """
@@ -38,6 +42,12 @@ const sublattice_shift = -1 / √(3) * graphene_lattice_constant
 end
 
 """
+    struct GrapheneCoord
+        u::Int
+        v::Int
+        sublattice::Sublattice
+    end
+
 Lattice coordinate of a carbon atom, generated using [`graphene_A`](@ref) or
 [`graphene_B`](@ref). Each coordinate contains the sublattice index, as well as
 the integer coefficients of the two basis vectors ``d\\times(\\pm 1 \\hat{x} +
@@ -52,7 +62,7 @@ end
 """
     crystal_to_cartesian(coord::GrapheneCoord)
 
-Convert a crystal coordinate to a cartesian one.
+Convert a crystal coordinate to a cartesian one for plotting.
 
 # Arguments
 * `coord`: a [`GrapheneCoord`](@ref) that needs to be converted to a 3D [`Location`](@ref)
@@ -135,8 +145,7 @@ end
 ## Propagator
 # Integrals used in computing the propagator
 @inline function Ω_Integrand(z, u, v, x::Float64)
-    t = NN_hopping
-    W = ((z / t)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
+    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
     return (
         exp(1.0im * (u - v) * x) / cos(x) *
         ((W - √(W - 1) * √(W + 1))^abs.(u + v)) / (√(W - 1) * √(W + 1))
@@ -144,17 +153,15 @@ end
 end
 
 @inline function Ω(z, u, v)
-    t = NN_hopping
     return ((quadgk(
-        x -> Ω_Integrand(z, u, v, x) / (8.0 * π * t^2),
+        x -> 2 * Ω_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
-        2.0 * π,
+        π,
     ))[1])
 end
 
 @inline function Ωp_Integrand(z, u, v, x::Float64)
-    t = NN_hopping
-    W = ((z / t)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
+    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
     return (
         2 *
         exp(1.0im * (u - v) * x) *
@@ -163,17 +170,15 @@ end
 end
 
 @inline function Ωp(z, u, v)
-    t = NN_hopping
     return ((quadgk(
-        x -> Ωp_Integrand(z, u, v, x) / (8.0 * π * t^2),
+        x -> 2 * Ωp_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
-        2.0 * π,
+        π,
     ))[1])
 end
 
 @inline function Ωn_Integrand(z, u, v, x::Float64)
-    t = NN_hopping
-    W = ((z / t)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
+    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
     return (
         2 *
         exp(1.0im * (u - v) * x) *
@@ -182,21 +187,17 @@ end
 end
 
 @inline function Ωn(z, u, v)
-    t = NN_hopping
     return ((quadgk(
-        x -> Ωn_Integrand(z, u, v, x) / (8.0 * π * t^2),
+        x -> 2 * Ωn_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
-        2.0 * π,
+        π,
     ))[1])
 end
 
 
-"""
-    graphene_propagator(atom1::GrapheneCoord, atom2::GrapheneCoord, z)
 
-The propagator function picks out the correct element of the Ξ matrix based
-on the sublattices of the graphene coordinates.
-"""
+# The propagator function picks out the correct element of the Ξ matrix based
+# on the sublattices of the graphene coordinates.
 function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
     t = NN_hopping
     u = a_l.u - a_m.u
@@ -212,18 +213,15 @@ function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
     end
 end
 
-"""
-    graphene_propagator_matrix(z, coords::Vector{GrapheneCoord})
 
-Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
-matrix. The calculation is sped up using the fact that the matrix is symmetric.
-"""
+# Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
+# matrix. The calculation is sped up using the fact that the matrix is symmetric.
 function propagator_matrix(z, Coords::Vector{GrapheneCoord})
     len_coords = length(Coords)
     out = zeros(ComplexF64, len_coords, len_coords)
     for ii = 1:len_coords
         @inbounds for jj = ii:len_coords
-            out[ii, jj] = propagator(Coords[ii], Coords[jj], z)
+            out[ii, jj] = graphene_propagator(Coords[ii], Coords[jj], z)
             out[jj, ii] = out[ii, jj]
         end
     end
