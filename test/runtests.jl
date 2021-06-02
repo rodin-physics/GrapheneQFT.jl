@@ -49,3 +49,26 @@ r2 = rand(-20:20, 10)
 # # @time GrapheneQFT.Ω(1im, 12, 4)
 # # @time δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
 # @time GrapheneQFT.Ω(1im, 12, 4)
+# my_system = new_graphene_system()
+#
+# add_perturbation!(my_system, graphene_A(0, 0), graphene_A(0, 0), 2.0)
+# my_system
+# z = 1im
+# # Γ0 = Vector{ComplexF64}(map(x -> z - x.ϵ, my_system.imps))
+# Γ0 = Vector{ComplexF64}(map(x -> z - x.ϵ, my_system.imps)) |> Diagonal |> inv
+# prop_mat = GrapheneQFT.propagator_matrix(z, my_system.scattering_atoms)
+# D =
+#  (my_system.Δ .+ my_system.V * Γ0 * transpose(my_system.V)) * inv(
+#       Diagonal(ones(length(my_system.scattering_atoms))) .-
+#       prop_mat * (my_system.Δ .+ my_system.V * Γ0 * transpose(my_system.V)),
+#  )
+#
+# δG_R(1im, graphene_A(0, 0), graphene_A(0, 0), my_system)
+#
+# my_system.Δ + my_system.V * Γ0 * transpose(my_system.V)
+#
+#
+# (s.Δ .+ s.V * Γ0 * transpose(s.V)) * inv(
+#       Diagonal(ones(length(s.scattering_atoms))) .-
+#       prop_mat * (s.Δ .+ s.V * Γ0 * transpose(s.V)),
+#  )
