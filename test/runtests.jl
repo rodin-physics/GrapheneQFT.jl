@@ -36,14 +36,14 @@ r2 = rand(-20:20, 10)
 # @time GrapheneQFT.Ω(1im, 12, 4)
 #
 # # remove_perturbation!(my_system, random_atom(), random_atom())
-@time quadgk(
-      x -> δG_R(x * 1im, graphene_A(0, 0), graphene_A(0, 0), my_system)|>real,
-      0,
-      Inf,
-      rtol = 1e-2,
-)
-@time δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
-# @code_warntype δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
-# @time GrapheneQFT.Ω(1im, 12, 4)
+# @time quadgk(
+#       x -> δG_R(x * 1im, graphene_A(0, 0), graphene_A(0, 0), my_system)|>real,
+#       0,
+#       Inf,
+#       rtol = 1e-2,
+# )
 # @time δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
-@time GrapheneQFT.Ω(1im, 12, 4)
+# # @code_warntype δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
+# # @time GrapheneQFT.Ω(1im, 12, 4)
+# # @time δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
+# @time GrapheneQFT.Ω(1im, 12, 4)
