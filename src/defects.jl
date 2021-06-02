@@ -286,7 +286,7 @@ function scattering!(s::GrapheneSystem)
     if !isempty(V_array)
         s.V = reduce(hcat, V_array)
     else
-        s.V = []
+        s.V = Array{GrapheneCoord}(undef, 0, 0)
     end
 end
 
