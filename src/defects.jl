@@ -1,23 +1,61 @@
 include("pristine_graphene.jl")
 
-# Coupling for impurity states
+"""
+    struct Coupling
+        V::Float64              # Coupling to a graphene atom
+        coord::GrapheneCoord    # Location of the graphene atom
+    end
+
+A structure describing the coupling `V` (in eV) between an impurity state and a
+graphene atom at `coord`.
+"""
 struct Coupling
     V::Float64              # Coupling to a graphene atom
     coord::GrapheneCoord    # Location of the graphene atom
 end
 
-# Impurity state defined by its on-site energy and its coupling to graphene
+"""
+    mutable struct ImpurityState
+        ϵ::Float64                  # Impurity state energy
+        coupling::Vector{Coupling}  # Coupling array for the impurity
+    end
+
+A structure describing an impurity state with energy `ϵ` (in eV) and containing
+a list of all its couplings to graphene atoms.
+"""
 mutable struct ImpurityState
     ϵ::Float64                  # Impurity state energy
     coupling::Vector{Coupling}  # Coupling array for the impurity
 end
 
-# Initialize an impurity
+"""
+    new_impurity(ϵ::Float64)
+
+A function to create a new impurity.
+
+# Arguments
+* `ϵ`: energy of the impurity state
+
+# Output
+* [`ImpurityState`](@ref) with an empty coupling list
+"""
 function new_impurity(ϵ)
     return ImpurityState(ϵ, Array{Coupling}(undef, 0))
 end
 
-# Add coupling to an existing impurity
+"""
+    add_coupling!(imp::ImpurityState, V::Float64, coord::GrapheneCoord)
+
+A function to add a coupling to an existing [`ImpurityState`](@ref).
+
+# Arguments
+* `imp`: an existing [`ImpurityState`](@ref)
+* `V`: coupling energy (in eV)
+* `coord`: [`GrapheneCoord`](@ref) to which one wishes to couple the impurity
+
+# Output
+* [`ImpurityState`](@ref) with an added element in the coupling list
+"""
 function add_coupling!(imp::ImpurityState, V, coord)
     if (coord in map(x -> x.coord, imp.coupling))
         error("The impurity is already coupled to this atom")
@@ -26,11 +64,38 @@ function add_coupling!(imp::ImpurityState, V, coord)
     end
 end
 
-# Remove coupling from an impurity
+"""
+    remove_coupling!(imp::ImpurityState, ind::Int)
+
+A function to remove a coupling from an existing [`ImpurityState`](@ref).
+
+# Arguments
+* `imp`: an existing [`ImpurityState`](@ref)
+* `ind`: the index of the coupling in the coupling list to be removed
+
+# Output
+* [`ImpurityState`](@ref) with the desired coupling removed
+"""
 function remove_coupling!(imp::ImpurityState, ind::Int)
     imp.coupling = deleteat!(imp.coupling, ind)
 end
 
+"""
+    mutable struct GrapheneSystem
+        μ::Float64                          # Chemical potential
+        T::Float64                          # Temperature
+        imps::Vector{ImpurityState}         # Impurity states in the system
+        pert::Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}  # Direct perturbation
+        Δ::Array{Float64,2}                 # Δ matrix
+        V::Array{Float64,2}                 # V Matrix
+        scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
+    end
+
+A structure describing the perturbed graphene system. Whenever an impurity or
+a direct perturbation (coupling between graphene atoms) is added or removed,
+the `Δ` and `V` matrices are updated, as is the list of the perturbed atoms
+`scattering_atoms`.
+"""
 mutable struct GrapheneSystem
     μ::Float64                          # Chemical potential
     T::Float64                          # Temperature
@@ -41,7 +106,17 @@ mutable struct GrapheneSystem
     scattering_atoms::Vector{GrapheneCoord}
 end
 
-# Setting up the graphene system
+"""
+    new_graphene_system()
+
+Create a new [`GrapheneSystem`](@ref).
+
+# Arguments
+* None
+
+# Output
+* [`GrapheneSystem`](@ref) with ``T = 0``, ``μ = 0``, and no defects.
+"""
 function new_graphene_system()
     return GrapheneSystem(
         0.0,
@@ -54,16 +129,58 @@ function new_graphene_system()
     )
 end
 
-# Changing the temperature of an initialized system
+"""
+    set_T!(s::GrapheneSystem, new_T::Float64)
+
+Modify the temperature of an existing [`GrapheneSystem`](@ref)
+
+# Arguments
+* `s`: an existing [`GrapheneSystem`](@ref)
+* `new_T`: new temperature
+
+# Output
+* [`GrapheneSystem`](@ref) with the new temperature `new_T`
+"""
 function set_T!(s::GrapheneSystem, new_T::Float64)
     s.T = new_T
 end
 
-# Changing the chemical potential of an initialized system
+"""
+    set_μ!(s::GrapheneSystem, new_μ::Float64)
+
+Modify the chemical potential of an existing [`GrapheneSystem`](@ref)
+
+# Arguments
+* `s`: an existing [`GrapheneSystem`](@ref)
+* `new_μ`: new chemical potential
+
+# Output
+* [`GrapheneSystem`](@ref) with the new chemical potential `new_μ`
+"""
 function set_μ!(s::GrapheneSystem, new_μ::Float64)
     s.μ = new_μ
 end
 
+"""
+    add_perturbation!(
+        s::GrapheneSystem,
+        a::GrapheneCoord,
+        b::GrapheneCoord,
+        Δ::Float64,
+    )
+
+Introduce a direct coupling between graphene atoms `a` and `b` or, if `a==b`,
+a local potential
+
+# Arguments
+* `s`: an existing [`GrapheneSystem`](@ref)
+* `a`: [`GrapheneCoord`](@ref) of the first atom
+* `b`: [`GrapheneCoord`](@ref) of the second atom
+* `Δ`: coupling between the atoms
+
+# Output
+* [`GrapheneSystem`](@ref) with the newly-added coupling
+"""
 function add_perturbation!(
     s::GrapheneSystem,
     a::GrapheneCoord,
@@ -77,6 +194,23 @@ function add_perturbation!(
     scattering!(s)
 end
 
+"""
+    remove_perturbation!(
+        s::GrapheneSystem,
+        a::GrapheneCoord,
+        b::GrapheneCoord,
+    )
+
+Remove a coupling between graphene atoms `a` and `b` or, if `a==b`, a local potential
+
+# Arguments
+* `s`: an existing [`GrapheneSystem`](@ref)
+* `a`: [`GrapheneCoord`](@ref) of the first atom
+* `b`: [`GrapheneCoord`](@ref) of the second atom
+
+# Output
+* [`GrapheneSystem`](@ref) with the coupling removed
+"""
 function remove_perturbation!(
     s::GrapheneSystem,
     a::GrapheneCoord,
@@ -89,11 +223,35 @@ function remove_perturbation!(
     scattering!(s)
 end
 
+"""
+    add_impurity!(s::GrapheneSystem, imp::ImpurityState)
+
+A function to add an impurity to an existing [`GrapheneSystem`](@ref).
+
+# Arguments
+* `s`: an existing [`GrapheneSystem`](@ref)
+* `imp`: the [`ImpurityState`](@ref) to be added
+
+# Output
+* [`GrapheneSystem`](@ref) with an added element in the impurity list
+"""
 function add_impurity!(s::GrapheneSystem, imp::ImpurityState)
     s.imps = push!(s.imps, imp)
     scattering!(s)
 end
 
+"""
+    remove_impurity!(s::GrapheneSystem, ind::Int)
+
+A function to remove an impurity from an existing [`GrapheneSystem`](@ref).
+
+# Arguments
+* `s`: an existing [`GrapheneSystem`](@ref)
+* `ind`: the index of the impurity in the impurity list to be removed
+
+# Output
+* [`GrapheneSystem`](@ref) with the desired impurity removed
+"""
 function remove_impurity!(s::GrapheneSystem, ind::Int)
     s.imps = deleteat!(s.imps, ind)
     scattering!(s)
@@ -134,6 +292,21 @@ end
 
 ## Green's functions
 
+"""
+    δG_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
+
+The correction to the real-space graphene Green's function in the presence of
+defects as a function of complex energy `z`.
+
+# Arguments
+* `z`: complex energy
+* `a1`: [`GrapheneCoord`](@ref) of the first atom
+* `a2`: [`GrapheneCoord`](@ref) of the second atom
+* `s`: [`GrapheneSystem`](@ref) for which `δG_R` is calculated
+
+# Output
+* `ComplexF64`
+"""
 function δG_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
     Γ0 = map(x -> z - x.ϵ, s.imps) |> Diagonal |> inv
     prop_mat = propagator_matrix(z, s.scattering_atoms)
@@ -142,17 +315,33 @@ function δG_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
             Diagonal(ones(length(s.scattering_atoms))) .-
             prop_mat * (s.Δ .+ s.V * Γ0 * transpose(s.V)),
         )
-    PropVectorR = map(x -> propagator(x, a2, z), s.scattering_atoms)
+    PropVectorR = map(x -> graphene_propagator(x, a2, z), s.scattering_atoms)
     if a1 == a2
         PropVectorL = permutedims(PropVectorR)
     else
         PropVectorL =
             map(x -> propagator(a1, x, z), s.scattering_atoms) |> permutedims
+
     end
     res = (PropVectorL*D*PropVectorR)[1]
     return res
 end
 
+"""
+    G_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
+
+The full real-space graphene Green's function in the presence of
+defects as a function of complex energy `z`.
+
+# Arguments
+* `z`: complex energy
+* `a1`: [`GrapheneCoord`](@ref) of the first atom
+* `a2`: [`GrapheneCoord`](@ref) of the second atom
+* `s`: [`GrapheneSystem`](@ref) for which `G_R` is calculated
+
+# Output
+* `ComplexF64`
+"""
 function G_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
     res =
         (a1 == a2) *
@@ -160,9 +349,22 @@ function G_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
         δG_R(z, a1, a2, s)
 end
 
+"""
+    δΓ(z, s::GrapheneSystem)
+
+The correction to the impurity Green's function due to the impurities' interaction
+with graphene.
+
+# Arguments
+* `z`: complex energy
+* `s`: [`GrapheneSystem`](@ref) for which `δΓ_R` is calculated
+
+# Output
+* `Matrix{ComplexF64}`
+"""
 function δΓ(z, s::GrapheneSystem)
     Γ0 = map(x -> z - x.ϵ, s.imps) |> Diagonal |> inv
-    prop_mat = propagator_matrix(z, map(x -> x.coord, s.scattering_atoms))
+    prop_mat = propagator_matrix(z, s.scattering_atoms)
     Λ =
         prop_mat +
         prop_mat *
@@ -182,6 +384,19 @@ function δΓ(z, s::GrapheneSystem)
     return res
 end
 
+"""
+    Γ(z, s::GrapheneSystem)
+
+The full impurity Green's function with the correction due to the impurities'
+interaction with graphene.
+
+# Arguments
+* `z`: complex energy
+* `s`: [`GrapheneSystem`](@ref) for which `Γ_R` is calculated
+
+# Output
+* `Matrix{ComplexF64}`
+"""
 function Γ(z, s::GrapheneSystem)
     Γ0 = map(x -> z - x.ϵ, s.imps) |> Diagonal |> inv
     res = Γ0 + δΓ(z, s)
