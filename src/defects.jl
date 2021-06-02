@@ -308,13 +308,19 @@ defects as a function of complex energy `z`.
 * `ComplexF64`
 """
 function δG_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
-    Γ0 = map(x -> z - x.ϵ, s.imps) |> Diagonal |> inv
     prop_mat = propagator_matrix(z, s.scattering_atoms)
-    D =
-        (s.Δ .+ s.V * Γ0 * transpose(s.V)) * inv(
-            Diagonal(ones(length(s.scattering_atoms))) .-
-            prop_mat * (s.Δ .+ s.V * Γ0 * transpose(s.V)),
-        )
+    if length(s.imps) == 0
+        D =
+            s.Δ *
+            inv(Diagonal(ones(length(s.scattering_atoms))) .- prop_mat * s.Δ)
+    else
+        Γ0 = map(x -> z - x.ϵ, s.imps) |> Diagonal |> inv
+        D =
+            (s.Δ .+ s.V * Γ0 * transpose(s.V)) * inv(
+                Diagonal(ones(length(s.scattering_atoms))) .-
+                prop_mat * (s.Δ .+ s.V * Γ0 * transpose(s.V)),
+            )
+    end
     PropVectorR = map(x -> graphene_propagator(x, a2, z), s.scattering_atoms)
     if a1 == a2
         PropVectorL = permutedims(PropVectorR)
