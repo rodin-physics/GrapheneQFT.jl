@@ -97,8 +97,8 @@ end
     struct GrapheneSystem
         μ::Float64                              # Chemical potential
         T::Float64                              # Temperature
-        Δ::Array{ComplexF64,2}                     # Δ matrix
-        V::Array{ComplexF64,2}                     # V Matrix
+        Δ::Array{ComplexF64,2}                  # Δ matrix
+        V::Array{ComplexF64,2}                  # V Matrix
         scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
         imps::Vector{Float64}                   # Impurity energies
     end
@@ -107,12 +107,12 @@ A structure describing the perturbed graphene system. See
 [`mk_GrapheneSystem`](@ref) for details.
 """
 struct GrapheneSystem
-    μ::Float64                          # Chemical potential
-    T::Float64                          # Temperature
-    Δ::Array{ComplexF64,2}
-    V::Array{ComplexF64,2}
-    scattering_atoms::Vector{GrapheneCoord}
-    imps::Vector{Float64}
+    μ::Float64                              # Chemical potential
+    T::Float64                              # Temperature
+    Δ::Array{ComplexF64,2}                  # Δ matrix
+    V::Array{ComplexF64,2}                  # V Matrix
+    scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
+    imps::Vector{Float64}                   # Impurity energies
 end
 
 """

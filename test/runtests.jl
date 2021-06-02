@@ -21,7 +21,7 @@ a1 = graphene_A(0, 17)
 a2 = graphene_A(1, 1)
 a3 = graphene_B(3, -2)
 a4 = graphene_A(2, 7)
-a5 = graphene_A(0, 0)
+a5 = graphene_A(0, 1)
 
 ϵ1 = 1.7
 ϵ2 = -0.2
@@ -61,6 +61,3 @@ my_system = mk_GrapheneSystem(0.0, 0.0, [imp1, imp2], pert)
       0 0
       V2 0
 ]
-
-
-# @code_warntype δG_R(1im, graphene_A(0,0), graphene_A(0,0), z)
