@@ -16,59 +16,51 @@ r2 = rand(-20:20, 10)
       map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.A), r1, r2)
 @test map((x, y) -> graphene_B(x, y), r1, r2) ==
       map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.B), r1, r2)
-# #
-# my_system = new_graphene_system()
-# add_perturbation!(my_system, graphene_A(0,0), graphene_B(0,0), 6.1)
-# my_system
-# imp1 = new_impurity(1.0)
-# imp2 = new_impurity(1.0)
-#
-# add_coupling!(imp1, 2, graphene_A(0, 0))
-# add_coupling!(imp2, 2, graphene_A(2, 2))
-#
-# add_impurity!(my_system, imp1)
-# add_impurity!(my_system, imp2)
-#
-# add_perturbation!(my_system, random_atom(), random_atom(), 6.1)
-#
-# @time GrapheneQFT.propagator_matrix(1im, my_system.scattering_atoms)
-# @time δG_R(1im, graphene_A(0, 0), graphene_A(0, 0), my_system)
-# @time Γ(1im, my_system)[1, 1]
-#
-# @time GrapheneQFT.Ω(1im, 12, 4)
-#
-# # remove_perturbation!(my_system, random_atom(), random_atom())
-# @time quadgk(
-#       x -> δG_R(x * 1im, graphene_A(0, 0), graphene_A(0, 0), my_system)|>real,
-#       0,
-#       Inf,
-#       rtol = 1e-2,
-# )
-# @time δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
-# # @code_warntype δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
-# # @time GrapheneQFT.Ω(1im, 12, 4)
-# # @time δG_R(2 * 1im, graphene_A(1, 1), graphene_A(1, 1), my_system)
-# @time GrapheneQFT.Ω(1im, 12, 4)
-# my_system = new_graphene_system()
-#
-# add_perturbation!(my_system, graphene_A(0, 0), graphene_A(0, 0), 2.0)
-# my_system
-# z = 1im
-# # Γ0 = Vector{ComplexF64}(map(x -> z - x.ϵ, my_system.imps))
-# Γ0 = Vector{ComplexF64}(map(x -> z - x.ϵ, my_system.imps)) |> Diagonal |> inv
-# prop_mat = GrapheneQFT.propagator_matrix(z, my_system.scattering_atoms)
-# D =
-#  (my_system.Δ .+ my_system.V * Γ0 * transpose(my_system.V)) * inv(
-#       Diagonal(ones(length(my_system.scattering_atoms))) .-
-#       prop_mat * (my_system.Δ .+ my_system.V * Γ0 * transpose(my_system.V)),
-#  )
-#
-# δG_R(1im, graphene_A(0, 0), graphene_A(0, 0), my_system)
-#
-# my_system.Δ + my_system.V * Γ0 * transpose(my_system.V)
-#
-#
-# (s.Δ .+ s.V * Γ0 * transpose(s.V)) * inv(
-#       Diagonal(ones(length(s.scattering_atoms))) .-
-#       prop_mat * (s.Δ .+ s.V * Γ0 * transpose(s.V)),
-#  )
+
+a1 = graphene_A(0, 17)
+a2 = graphene_A(1, 1)
+a3 = graphene_B(3, -2)
+a4 = graphene_A(2, 7)
+a5 = graphene_A(0, 0)
+
+ϵ1 = 1.7
+ϵ2 = -0.2
+
+V1 = 0.4
+V2 = 2+0.9im
+V3 = -2.1
+
+imp1 = ImpurityState(ϵ1, [Coupling(V1, a4), Coupling(V2, a3)])
+imp2 = ImpurityState(ϵ2, [Coupling(V3, a5)])
+
+c1 = ComplexF64(3)
+c2 = ComplexF64(5 + 1im)
+c3 = ComplexF64(9 - 2im)
+
+pert = new_perturbation()
+pert = add_perturbation(pert, a1, a1, c1)
+pert = add_perturbation(pert, a2, a1, c2)
+pert = add_perturbation(pert, a3, a1, c3)
+
+my_system = mk_GrapheneSystem(0.0, 0.0, [imp1, imp2], pert)
+
+@test my_system.imps == [ϵ1, ϵ2]
+@test my_system.scattering_atoms == [a5, a2, a4, a1, a3]
+
+@test my_system.Δ == [
+      0 0 0 0 0
+      0 0 0 c2 0
+      0 0 0 0 0
+      0 conj(c2) 0 c1 conj(c3)
+      0 0 0 c3 0
+]
+@test my_system.V == [
+      0 V3
+      0 0
+      V1 0
+      0 0
+      V2 0
+]
+
+
+# @code_warntype δG_R(1im, graphene_A(0,0), graphene_A(0,0), z)
