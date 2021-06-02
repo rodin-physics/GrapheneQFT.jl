@@ -18,6 +18,8 @@ r2 = rand(-20:20, 10)
       map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.B), r1, r2)
 # #
 # my_system = new_graphene_system()
+# add_perturbation!(my_system, graphene_A(0,0), graphene_B(0,0), 6.1)
+# my_system
 # imp1 = new_impurity(1.0)
 # imp2 = new_impurity(1.0)
 #
