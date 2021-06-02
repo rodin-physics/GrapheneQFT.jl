@@ -59,6 +59,21 @@ struct GrapheneCoord
     sublattice::Sublattice
 end
 
+# Define a comparison function between the coordinates to help with testing
+function Base.isless(a1::GrapheneCoord, a2::GrapheneCoord)
+      if a1.sublattice == A && a2.sublattice == B
+            return true
+      elseif a1.sublattice == B && a2.sublattice == A
+            return false
+      else
+            if a1.v == a2.v
+                  return isless(a1.u, a2.u)
+            else
+                  return isless(a1.v, a2.v)
+            end
+      end
+end
+
 """
     graphene_A(u::Int, v::Int)
 

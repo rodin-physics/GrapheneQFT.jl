@@ -2,7 +2,7 @@ include("pristine_graphene.jl")
 
 """
     struct Coupling
-        V::Float64              # Coupling to a graphene atom
+        V::ComplexF64           # Coupling to a graphene atom
         coord::GrapheneCoord    # Location of the graphene atom
     end
 
@@ -10,7 +10,7 @@ A structure describing the coupling `V` (in eV) between an impurity state and a
 graphene atom at `coord`.
 """
 struct Coupling
-    V::Float64              # Coupling to a graphene atom
+    V::ComplexF64           # Coupling to a graphene atom
     coord::GrapheneCoord    # Location of the graphene atom
 end
 
@@ -97,8 +97,8 @@ end
     struct GrapheneSystem
         μ::Float64                              # Chemical potential
         T::Float64                              # Temperature
-        Δ::Array{Float64,2}                     # Δ matrix
-        V::Array{Float64,2}                     # V Matrix
+        Δ::Array{ComplexF64,2}                     # Δ matrix
+        V::Array{ComplexF64,2}                     # V Matrix
         scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
         imps::Vector{Float64}                   # Impurity energies
     end
@@ -109,8 +109,8 @@ A structure describing the perturbed graphene system. See
 struct GrapheneSystem
     μ::Float64                          # Chemical potential
     T::Float64                          # Temperature
-    Δ::Array{Float64,2}
-    V::Array{Float64,2}
+    Δ::Array{ComplexF64,2}
+    V::Array{ComplexF64,2}
     scattering_atoms::Vector{GrapheneCoord}
     imps::Vector{Float64}
 end
@@ -150,7 +150,7 @@ function mk_GrapheneSystem(
         reduce(vcat, map(x -> x.coupling, imps), init = Coupling[]),
     )
     # Combine the two sets of coordinates and keep only unique entries
-    all_atoms = vcat(perturbed_atoms, coupled_atoms) |> unique
+    all_atoms = vcat(perturbed_atoms, coupled_atoms) |> unique |> sort
     # Assemble Δ
     all_atoms_M = repeat(all_atoms, 1, length(all_atoms))
     all_atoms_M_T = permutedims(all_atoms_M)
@@ -160,7 +160,7 @@ function mk_GrapheneSystem(
         imp -> map(
             atom -> sum(
                 map(c -> ((atom == c.coord) * c.V), imp.coupling),
-            )::Float64,
+            )::ComplexF64,
             all_atoms,
         ),
         imps,
@@ -200,9 +200,9 @@ function δG_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
     else
         Γ0 = 1 ./ (z .- s.imps) |> Diagonal
         D =
-            (s.Δ .+ s.V * Γ0 * transpose(s.V)) * inv(
+            (s.Δ .+ s.V * Γ0 * adjoint(s.V)) * inv(
                 Diagonal(ones(length(s.scattering_atoms))) .-
-                prop_mat * (s.Δ .+ s.V * Γ0 * transpose(s.V)),
+                prop_mat * (s.Δ .+ s.V * Γ0 * adjoint(s.V)),
             )
     end
     PropVectorR = map(x -> graphene_propagator(x, a2, z), s.scattering_atoms)
@@ -264,11 +264,11 @@ function δΓ(z, s::GrapheneSystem)
         prop_mat
     res =
         Γ0 *
-        transpose(s.V) *
+        adjoint(s.V) *
         Λ *
         inv(
             Diagonal(ones(length(s.scattering_atoms))) -
-            s.V * Γ0 * transpose(s.V) * Λ,
+            s.V * Γ0 * adjoint(s.V) * Λ,
         ) *
         s.V *
         Γ0

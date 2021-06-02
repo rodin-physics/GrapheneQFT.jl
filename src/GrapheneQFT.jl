@@ -14,6 +14,8 @@ using LinearAlgebra
 
 export graphene_A,
     graphene_B,
+    Coupling,
+    ImpurityState,
     new_impurity,
     new_graphene_system,
     new_perturbation,
