@@ -2,7 +2,7 @@ include("pristine_graphene.jl")
 
 """
     struct Coupling
-        V::ComplexF64           # Coupling to a graphene atom
+        V::Float64           # Coupling to a graphene atom
         coord::GrapheneCoord    # Location of the graphene atom
     end
 
@@ -10,7 +10,7 @@ A structure describing the coupling `V` (in eV) between an impurity state and a
 graphene atom at `coord`.
 """
 struct Coupling
-    V::ComplexF64           # Coupling to a graphene atom
+    V::Float64           # Coupling to a graphene atom
     coord::GrapheneCoord    # Location of the graphene atom
 end
 
@@ -30,7 +30,7 @@ end
 
 """
     struct Perturbation
-        pert::Dict{Tuple{GrapheneCoord,GrapheneCoord},ComplexF64}
+        pert::Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}
     end
 
 A structure wrapping a dictionary describing the coupling between graphene atoms
@@ -38,7 +38,7 @@ and local potential. See [`new_perturbation()`](@ref) and
 [`add_perturbation`](@ref) for more details.
 """
 struct Perturbation
-    pert::Dict{Tuple{GrapheneCoord,GrapheneCoord},ComplexF64}  # Direct perturbation
+    pert::Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}  # Direct perturbation
 end
 
 """
@@ -46,16 +46,16 @@ end
 
 A helper initialization function , giving an empty dictionary wrapped in the
     [`Perturbation`](@ref) structure. The keys for the dictionary are tuples of two
-    [`GrapheneCoord`](@ref), while the values are `ComplexF64`.
+    [`GrapheneCoord`](@ref), while the values are `Float64`.
 
 # Arguments:
 * None
 
 # Output:
-* [`Perturbation`](@ref) wrapping an empty `Dict{Tuple{GrapheneCoord,GrapheneCoord},ComplexF64}`
+* [`Perturbation`](@ref) wrapping an empty `Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}`
 """
 function new_perturbation()
-    return Perturbation(Dict{Tuple{GrapheneCoord,GrapheneCoord},ComplexF64}())
+    return Perturbation(Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}())
 end
 
 """
@@ -63,7 +63,7 @@ end
         p::Perturbation,
         a::GrapheneCoord,
         b::GrapheneCoord,
-        Δ::ComplexF64,
+        Δ::Float64,
     )
 
 A function that adds coupling between atoms `a` and `b` or, if `a == b`, an
@@ -85,11 +85,11 @@ function add_perturbation(
     p::Perturbation,
     a::GrapheneCoord,
     b::GrapheneCoord,
-    Δ::ComplexF64,
+    Δ::Float64,
 )
     c = p.pert
     c[(a, b)] = Δ
-    c[(b, a)] = conj(Δ)
+    c[(b, a)] = Δ
     return Perturbation(c)
 end
 
@@ -97,8 +97,8 @@ end
     struct GrapheneSystem
         μ::Float64                              # Chemical potential
         T::Float64                              # Temperature
-        Δ::Array{ComplexF64,2}                  # Δ matrix
-        V::Array{ComplexF64,2}                  # V Matrix
+        Δ::Array{Float64,2}                     # Δ matrix
+        V::Array{Float64,2}                  # V Matrix
         scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
         imps::Vector{Float64}                   # Impurity energies
     end
@@ -109,8 +109,8 @@ A structure describing the perturbed graphene system. See
 struct GrapheneSystem
     μ::Float64                              # Chemical potential
     T::Float64                              # Temperature
-    Δ::Array{ComplexF64,2}                  # Δ matrix
-    V::Array{ComplexF64,2}                  # V Matrix
+    Δ::Array{Float64,2}                     # Δ matrix
+    V::Array{Float64,2}                  # V Matrix
     scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
     imps::Vector{Float64}                   # Impurity energies
 end
@@ -160,7 +160,7 @@ function mk_GrapheneSystem(
         imp -> map(
             atom -> sum(
                 map(c -> ((atom == c.coord) * c.V), imp.coupling),
-            )::ComplexF64,
+            )::Float64,
             all_atoms,
         ),
         imps,
