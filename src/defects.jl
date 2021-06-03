@@ -254,25 +254,29 @@ with graphene.
 * `Matrix{ComplexF64}`
 """
 function δΓ(z, s::GrapheneSystem)
-    Γ0 = 1 ./ (z .- s.imps) |> Diagonal
-    prop_mat = propagator_matrix(z, s.scattering_atoms)
-    Λ =
-        prop_mat +
-        prop_mat *
-        s.Δ *
-        inv(Diagonal(ones(length(s.scattering_atoms))) - prop_mat * s.Δ) *
-        prop_mat
-    res =
-        Γ0 *
-        adjoint(s.V) *
-        Λ *
-        inv(
-            Diagonal(ones(length(s.scattering_atoms))) -
-            s.V * Γ0 * adjoint(s.V) * Λ,
-        ) *
-        s.V *
-        Γ0
-    return res
+    if isempty(s.imps)
+        error("No impurity states in the system")
+    else
+        Γ0 = 1 ./ (z .- s.imps) |> Diagonal
+        prop_mat = propagator_matrix(z, s.scattering_atoms)
+        Λ =
+            prop_mat +
+            prop_mat *
+            s.Δ *
+            inv(Diagonal(ones(length(s.scattering_atoms))) - prop_mat * s.Δ) *
+            prop_mat
+        res =
+            Γ0 *
+            adjoint(s.V) *
+            Λ *
+            inv(
+                Diagonal(ones(length(s.scattering_atoms))) -
+                s.V * Γ0 * adjoint(s.V) * Λ,
+            ) *
+            s.V *
+            Γ0
+        return res
+    end
 end
 
 """
