@@ -61,17 +61,17 @@ end
 
 # Define a comparison function between the coordinates to help with testing
 function Base.isless(a1::GrapheneCoord, a2::GrapheneCoord)
-      if a1.sublattice == A && a2.sublattice == B
-            return true
-      elseif a1.sublattice == B && a2.sublattice == A
-            return false
-      else
-            if a1.v == a2.v
-                  return isless(a1.u, a2.u)
-            else
-                  return isless(a1.v, a2.v)
-            end
-      end
+    if a1.sublattice == A && a2.sublattice == B
+        return true
+    elseif a1.sublattice == B && a2.sublattice == A
+        return false
+    else
+        if a1.v == a2.v
+            return isless(a1.u, a2.u)
+        else
+            return isless(a1.v, a2.v)
+        end
+    end
 end
 
 """
@@ -110,12 +110,15 @@ end
 
 ## Propagator
 # Integrals used in computing the propagator
+
+# When computing Ω, occasionally the integrand becomes small enough to give NaN
+# The integrand helper functions help to catch these instances
 @inline function Ω_Integrand(z, u, v, x::Float64)
-    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
-    return (
+    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
+    res =
         exp(1.0im * (u - v) * x) / cos(x) *
         ((W - √(W - 1) * √(W + 1))^abs.(u + v)) / (√(W - 1) * √(W + 1))
-    )
+    return (isnan(res) ? 0.0 + 0.0im : res)
 end
 
 @inline function Ω(z, u, v)
@@ -127,12 +130,12 @@ end
 end
 
 @inline function Ωp_Integrand(z, u, v, x::Float64)
-    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
-    return (
+    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
+    res =
         2 *
         exp(1.0im * (u - v) * x) *
         ((W - √(W - 1) * √(W + 1))^abs.(u + v + 1)) / (√(W - 1) * √(W + 1))
-    )
+    return (isnan(res) ? 0.0 + 0.0im : res)
 end
 
 @inline function Ωp(z, u, v)
@@ -144,12 +147,12 @@ end
 end
 
 @inline function Ωn_Integrand(z, u, v, x::Float64)
-    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x)
-    return (
+    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
+    res =
         2 *
         exp(1.0im * (u - v) * x) *
         ((W - √(W - 1) * √(W + 1))^abs.(u + v - 1)) / (√(W - 1) * √(W + 1))
-    )
+    return (isnan(res) ? 0.0 + 0.0im : res)
 end
 
 @inline function Ωn(z, u, v)

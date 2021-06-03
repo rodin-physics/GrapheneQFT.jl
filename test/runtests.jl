@@ -27,15 +27,15 @@ a5 = graphene_A(0, 1)
 ϵ2 = -0.2
 
 V1 = 0.4
-V2 = 2+0.9im
-V3 = -2.1
+V2 = 2.0
+V3 = -7.1
 
 imp1 = ImpurityState(ϵ1, [Coupling(V1, a4), Coupling(V2, a3)])
 imp2 = ImpurityState(ϵ2, [Coupling(V3, a5)])
 
-c1 = ComplexF64(3)
-c2 = ComplexF64(5 + 1im)
-c3 = ComplexF64(9 - 2im)
+c1 = 3.0
+c2 = 5.0
+c3 = -9.0
 
 pert = new_perturbation()
 pert = add_perturbation(pert, a1, a1, c1)
@@ -51,7 +51,7 @@ my_system = mk_GrapheneSystem(0.0, 0.0, [imp1, imp2], pert)
       0 0 0 0 0
       0 0 0 c2 0
       0 0 0 0 0
-      0 conj(c2) 0 c1 conj(c3)
+      0 c2 0 c1 c3
       0 0 0 c3 0
 ]
 @test my_system.V == [
@@ -61,3 +61,51 @@ my_system = mk_GrapheneSystem(0.0, 0.0, [imp1, imp2], pert)
       0 0
       V2 0
 ]
+
+rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 20
+
+@test map(
+      (x, y) -> G_R(rand_num, x, y, my_system),
+      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
+      permutedims(
+            repeat(
+                  my_system.scattering_atoms,
+                  1,
+                  length(my_system.scattering_atoms),
+            ),
+      ),
+) |> real ≈
+      map(
+      (x, y) -> G_R(conj(rand_num), x, y, my_system),
+      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
+      permutedims(
+            repeat(
+                  my_system.scattering_atoms,
+                  1,
+                  length(my_system.scattering_atoms),
+            ),
+      ),
+) |> real
+
+@test map(
+      (x, y) -> G_R(rand_num, x, y, my_system),
+      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
+      permutedims(
+            repeat(
+                  my_system.scattering_atoms,
+                  1,
+                  length(my_system.scattering_atoms),
+            ),
+      ),
+) |> imag ≈
+      -map(
+      (x, y) -> G_R(conj(rand_num), x, y, my_system),
+      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
+      permutedims(
+            repeat(
+                  my_system.scattering_atoms,
+                  1,
+                  length(my_system.scattering_atoms),
+            ),
+      ),
+) |> imag
