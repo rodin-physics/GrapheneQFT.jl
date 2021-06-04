@@ -1,40 +1,5 @@
-## Graphene parameters
-# All lengths are in Å
-const graphene_lattice_constant = 2.46
 # Nearest-neighbor hopping parameter
 const NN_hopping = 2.8
-
-"""
-    struct Location
-        x::Float64
-        y::Float64
-        z::Float64
-    end
-
-A structure describing a point in 3D space, with the lengths in Å
-"""
-struct Location
-    x::Float64
-    y::Float64
-    z::Float64
-end
-
-# Graphene basis vectors
-const graphene_d1 = Location(
-    graphene_lattice_constant / 2,
-    graphene_lattice_constant * √(3) / 2,
-    0.0,
-)
-
-const graphene_d2 = Location(
-    -graphene_lattice_constant / 2,
-    graphene_lattice_constant * √(3) / 2,
-    0.0,
-)
-
-# Distance between neighboring carbon atoms
-const sublattice_shift = -1 / √(3) * graphene_lattice_constant
-
 #  Algebraic data type for graphene sublattices
 @data Sublattice begin
     A
@@ -42,16 +7,15 @@ const sublattice_shift = -1 / √(3) * graphene_lattice_constant
 end
 
 """
-    struct GrapheneCoord
-        u::Int
-        v::Int
-        sublattice::Sublattice
-    end
+    GrapheneCoord(u::Int, v::Int, sublattice::Sublattice)
 
 Lattice coordinate of a carbon atom, generated using [`graphene_A`](@ref) or
-[`graphene_B`](@ref). Each coordinate contains the sublattice index, as well as
-the integer coefficients of the two basis vectors ``d\\times(\\pm 1 \\hat{x} +
-\\sqrt{3}\\hat{y}) / 2``, where ``d = 2.46``Å is the graphene lattice constant.
+[`graphene_B`](@ref).
+
+Each coordinate contains the sublattice index `A` or `B`, as well as
+the integer coefficients of the two basis vectors
+``d\\times(\\pm 1 \\hat{x} + \\sqrt{3}\\hat{y}) / 2``
+(`u` for `+`, `v` for `-`), with ``d = 2.46``Å as the lattice constant.
 """
 struct GrapheneCoord
     u::Int
@@ -78,14 +42,7 @@ end
     graphene_A(u::Int, v::Int)
 
 Create a [`GrapheneCoord`](@ref) for an atom belonging to sublattice A at the
-unit cell (u, v)
-
-# Arguments
-* `u`: coefficient of basis vector ``d\\times(1 \\hat{x} + \\sqrt{3}\\hat{y}) / 2``
-* `v`: coefficient of basis vector ``d\\times(-1 \\hat{x} + \\sqrt{3}\\hat{y}) / 2``
-
-# Output
-* [`GrapheneCoord`](@ref) of the carbon atom
+unit cell (u, v).
 """
 function graphene_A(u::Int, v::Int)
     return GrapheneCoord(u, v, A)
@@ -95,14 +52,7 @@ end
     graphene_B(u::Int, v::Int)
 
 Create a [`GrapheneCoord`](@ref) for an atom belonging to sublattice B at the
-unit cell (u, v)
-
-# Arguments
-* `u`: coefficient of basis vector ``d\\times(1 \\hat{x} + \\sqrt{3}\\hat{y}) / 2``
-* `v`: coefficient of basis vector ``d\\times(-1 \\hat{x} + \\sqrt{3}\\hat{y}) / 2``
-
-# Output
-* [`GrapheneCoord`](@ref) of the carbon atom
+unit cell (u, v).
 """
 function graphene_B(u::Int, v::Int)
     return GrapheneCoord(u, v, B)
