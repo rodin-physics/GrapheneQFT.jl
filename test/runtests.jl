@@ -30,8 +30,8 @@ V1 = 0.4
 V2 = 2.0
 V3 = -7.1
 
-imp1 = ImpurityState(ϵ1, [Coupling(V1, a4), Coupling(V2, a3)])
-imp2 = ImpurityState(ϵ2, [Coupling(V3, a5)])
+imp1 = ImpurityState(ϵ1, [(V1, a4), (V2, a3)])
+imp2 = ImpurityState(ϵ2, [(V3, a5)])
 
 c1 = 3.0
 c2 = 5.0

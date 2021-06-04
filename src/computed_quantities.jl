@@ -10,9 +10,6 @@ defects as a function of complex energy `z`.
 * `a1`: [`GrapheneCoord`](@ref) of the first atom
 * `a2`: [`GrapheneCoord`](@ref) of the second atom
 * `s`: [`GrapheneSystem`](@ref) for which `δG_R` is calculated
-
-# Output
-* `ComplexF64`
 """
 function δG_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
     prop_mat = propagator_matrix(z, s.scattering_atoms)
@@ -52,9 +49,6 @@ defects as a function of complex energy `z`.
 * `a1`: [`GrapheneCoord`](@ref) of the first atom
 * `a2`: [`GrapheneCoord`](@ref) of the second atom
 * `s`: [`GrapheneSystem`](@ref) for which `G_R` is calculated
-
-# Output
-* `ComplexF64`
 """
 function G_R(z, a1::GrapheneCoord, a2::GrapheneCoord, s::GrapheneSystem)
     res =
@@ -66,15 +60,12 @@ end
 """
     δΓ(z, s::GrapheneSystem)
 
-The correction to the impurity Green's function due to the impurities' interaction
-with graphene.
+The correction to the impurity Green's function due to the impurities'
+interaction with graphene.
 
 # Arguments
 * `z`: complex energy
-* `s`: [`GrapheneSystem`](@ref) for which `δΓ_R` is calculated
-
-# Output
-* `Matrix{ComplexF64}`
+* `s`: [`GrapheneSystem`](@ref) for which `δΓ` is calculated
 """
 function δΓ(z, s::GrapheneSystem)
     if isempty(s.imps)
@@ -110,10 +101,7 @@ interaction with graphene.
 
 # Arguments
 * `z`: complex energy
-* `s`: [`GrapheneSystem`](@ref) for which `Γ_R` is calculated
-
-# Output
-* `Matrix{ComplexF64}`
+* `s`: [`GrapheneSystem`](@ref) for which `Γ` is calculated
 """
 function Γ(z, s::GrapheneSystem)
     Γ0 = 1 ./ (z .- s.imps) |> Diagonal

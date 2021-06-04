@@ -1,24 +1,15 @@
 include("pristine_graphene.jl")
 
 """
-    Coupling(V::Float64, coord::GrapheneCoord)
+    ImpurityState(ϵ::Float64, coupling::Vector{Tuple{Float64,GrapheneCoord}})
 
-Coupling between an [`ImpurityState`](@ref) and a graphene atom at `coord` with
-energy `V` (in eV).
-"""
-struct Coupling
-    V::Float64           # Coupling to a graphene atom
-    coord::GrapheneCoord    # Location of the graphene atom
-end
-
-"""
-    ImpurityState(ϵ::Float64, coupling::Vector{Coupling})
-
-In impurity state of energy `ϵ` (in eV) with all its [`Coupling`](@ref)s.
+An impurity state of energy `ϵ` (in eV) coupled to the graphene system. The
+tuples in the `coupling` field contain all the coupling energies (in eV) and the
+ corresponding [`GrapheneCoord`](@ref)'s.
 """
 struct ImpurityState
-    ϵ::Float64                  # Impurity state energy
-    coupling::Vector{Coupling}  # Coupling array for the impurity
+    ϵ::Float64
+    coupling::Vector{Tuple{Float64,GrapheneCoord}}
 end
 
 """
@@ -87,8 +78,12 @@ function mkGrapheneSystem(
     perturbed_atoms = map(x -> x[1], pert_dict |> keys |> collect) |> unique
     # Get the coordinates of atoms coupled to impurities
     coupled_atoms = map(
-        y -> y.coord,
-        reduce(vcat, map(x -> x.coupling, imps), init = Coupling[]),
+        y -> y[2],
+        reduce(
+            vcat,
+            map(x -> x.coupling, imps),
+            init = Vector{Tuple{Float64,GrapheneCoord}}[],
+        ),
     )
     # Combine the two sets of coordinates and keep only unique entries
     all_atoms = vcat(perturbed_atoms, coupled_atoms) |> unique |> sort
@@ -100,7 +95,7 @@ function mkGrapheneSystem(
     V_array = map(
         imp -> map(
             atom -> sum(
-                map(c -> ((atom == c.coord) * c.V), imp.coupling),
+                map(c -> ((atom == c[2]) * c[1]), imp.coupling),
             )::Float64,
             all_atoms,
         ),

@@ -1,4 +1,8 @@
 # API
+```@index
+Modules = [GrapheneQFT]
+Order   = [:constant, :type, :function, :macro]
+```
 
 ## Defect-Free Graphene
 ```@docs
@@ -9,7 +13,6 @@
 
 ## Defect Manipulation
 ```@docs
-  Coupling
   ImpurityState
   GrapheneSystem
   mkGrapheneSystem

@@ -87,11 +87,7 @@
 # const graphene_lattice_constant = 2.46
 ## Module Index
 
-# ```@index
-# Modules = [GrapheneQFT]
-# Order   = [:constant, :type, :function, :macro]
-#
-# ```
+
 # ## Detailed API
 # ```@autodocs
 # Modules = [GrapheneQFT]
