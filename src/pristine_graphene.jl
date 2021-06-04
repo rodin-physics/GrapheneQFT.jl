@@ -126,6 +126,7 @@ end
         x -> 2 * Ω_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π,
+        atol = 1e-16,
     ))[1])
 end
 
@@ -143,6 +144,7 @@ end
         x -> 2 * Ωp_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π,
+        atol = 1e-16,
     ))[1])
 end
 
@@ -160,6 +162,7 @@ end
         x -> 2 * Ωn_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π,
+        atol = 1e-16,
     ))[1])
 end
 
