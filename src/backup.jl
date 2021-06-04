@@ -52,3 +52,44 @@
 #         error("Illegal sublattice parameter")
 #     end
 # end
+
+# """
+#     struct Location
+#         x::Float64
+#         y::Float64
+#         z::Float64
+#     end
+#
+# A structure describing a point in 3D space, with the lengths in Å
+# """
+# struct Location
+#     x::Float64
+#     y::Float64
+#     z::Float64
+# end
+#
+# # Graphene basis vectors
+# const graphene_d1 = Location(
+#     graphene_lattice_constant / 2,
+#     graphene_lattice_constant * √(3) / 2,
+#     0.0,
+# )
+#
+# const graphene_d2 = Location(
+#     -graphene_lattice_constant / 2,
+#     graphene_lattice_constant * √(3) / 2,
+#     0.0,
+# )
+#
+# # Distance between neighboring carbon atoms
+# const sublattice_shift = -1 / √(3) * graphene_lattice_constant
+# All lengths are in Å
+# const graphene_lattice_constant = 2.46
+## Module Index
+
+
+# ## Detailed API
+# ```@autodocs
+# Modules = [GrapheneQFT]
+# Order   = [:constant, :type, :function, :macro]
+# ```

@@ -30,19 +30,19 @@ V1 = 0.4
 V2 = 2.0
 V3 = -7.1
 
-imp1 = ImpurityState(ϵ1, [Coupling(V1, a4), Coupling(V2, a3)])
-imp2 = ImpurityState(ϵ2, [Coupling(V3, a5)])
+imp1 = ImpurityState(ϵ1, [(V1, a4), (V2, a3)])
+imp2 = ImpurityState(ϵ2, [(V3, a5)])
 
 c1 = 3.0
 c2 = 5.0
 c3 = -9.0
 
-pert = new_perturbation()
-pert = add_perturbation(pert, a1, a1, c1)
-pert = add_perturbation(pert, a2, a1, c2)
-pert = add_perturbation(pert, a3, a1, c3)
+p1 = (a1, a1, c1)
+p2 = (a2, a1, c2)
+p3 = (a3, a1, c3)
 
-my_system = mk_GrapheneSystem(0.0, 0.0, [imp1, imp2], pert)
+
+my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], [p1, p2, p3])
 
 @test my_system.imps == [ϵ1, ϵ2]
 @test my_system.scattering_atoms == [a5, a2, a4, a1, a3]

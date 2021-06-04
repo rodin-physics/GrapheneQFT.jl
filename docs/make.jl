@@ -4,7 +4,10 @@ using GrapheneQFT
 push!(LOAD_PATH,"../src/")
 makedocs(sitename="GrapheneQFT.jl Documentation",
          pages = [
-            "Index" => "index.md"
+            "Home" => "index.md",
+            "Formalism" => "formalism.md",
+            "API" => "api.md"
+
          ],
          format = Documenter.HTML(prettyurls = false)
 )

@@ -62,20 +62,18 @@ using Cubature
 using QuadGK
 using LinearAlgebra
 
-export graphene_A,
+export GrapheneCoord,
+    graphene_A,
     graphene_B,
     Coupling,
     ImpurityState,
-    new_impurity,
-    new_graphene_system,
-    new_perturbation,
-    add_perturbation,
-    mk_GrapheneSystem,
+    GrapheneSystem,
+    mkGrapheneSystem,
     δG_R,
     G_R,
     δΓ,
     Γ
 
-include("defects.jl")
+include("computed_quantities.jl")
 
 end # module
