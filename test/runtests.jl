@@ -1,4 +1,4 @@
-using Test, QuadGK, GrapheneQFT
+using Test, QuadGK, GrapheneQFT, Cubature
 
 function random_atom()
       u = rand(-20:20)
@@ -109,3 +109,17 @@ rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 20
             ),
       ),
 ) |> imag
+
+@test abs(
+      hcubature(
+            r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]),
+            [0, 0],
+            [40, π],
+      )[1] - 1,
+) < 1e-6
+
+R_rand = 40 * rand()
+τ_rand = π * rand()
+exact_coulomb = coulomb_potential_pz(R_rand, τ_rand)[1]
+@test abs(coulomb_potential_pz_interp(R_rand, τ_rand) - exact_coulomb) /
+      exact_coulomb < 1e-3
