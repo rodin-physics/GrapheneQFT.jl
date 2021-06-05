@@ -18,10 +18,6 @@
 #     return (Location(x, y + (coord.sublattice == B) * shft, 0.0))
 # end
 #
-#
-#
-#
-#
 # """
 #     graphene_neighbors(atom::GrapheneCoord)
 #
@@ -85,11 +81,3 @@
 # const sublattice_shift = -1 / √(3) * graphene_lattice_constant
 # All lengths are in Å
 # const graphene_lattice_constant = 2.46
-## Module Index
-
-
-# ## Detailed API
-# ```@autodocs
-# Modules = [GrapheneQFT]
-# Order   = [:constant, :type, :function, :macro]
-# ```

@@ -1,1 +1,4 @@
 # GrapheneQFT.jl
+```@docs
+  GrapheneQFT
+```
