@@ -79,3 +79,43 @@ function coulomb_potential_pz_interp(R::Float64, τ::Float64)
         return interp_call(R, τ)
     end
 end
+
+@inline function coulomb_energy_pz_pz_Integrand(
+    r::Vector{Float64},
+    ρ::Tuple{Float64,Float64,Float64},
+)
+    # ρ is a CARTESIAN vector between the two pz orbitals
+    # r is a SPHERICAL vector pointing from the center of one of the orbitals to
+    # a point in space. it is the integration variable
+    # dist is a CARTESIAN vector pointing from the center of the second pz to
+    # the same point
+    dist =
+        [ρ[1], ρ[2], ρ[3]] - [
+            r[1] * sin(r[2]) * cos(r[3]),
+            r[1] * sin(r[2]) * sin(r[3]),
+            r[1] * cos(r[2]),
+        ]
+    res =
+        Ψ_pz(r[1], r[2]) .^ 2 *
+        r[1]^2 *
+        sin(r[2]) *
+        coulomb_potential_pz_interp(norm(dist), acos((dist[3]) / norm(dist)))[1]
+end
+
+
+"""
+    coulomb_energy_pz_pz(ρ::Tuple{Float64, Float64, Float64})
+
+Coulomb interaction between two graphene orbitals.
+
+# Arguments
+* `ρ`: a 3-tuple separation vector (x,y,z) between the orbital centers
+"""
+function coulomb_energy_pz_pz(ρ::Tuple{Float64,Float64,Float64})
+    hcubature(
+        r -> coulomb_energy_pz_pz_Integrand(r, ρ),
+        [0, 0, 0],
+        [40, π, 2 * π],
+        reltol = 1e-5,
+    )
+end

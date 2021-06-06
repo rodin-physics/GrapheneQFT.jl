@@ -74,7 +74,8 @@ export GrapheneCoord,
     Γ,
     Ψ_pz,
     coulomb_potential_pz,
-    coulomb_potential_pz_interp
+    coulomb_potential_pz_interp,
+    coulomb_energy_pz_pz
 
 include("computed_quantities.jl")
 include("orbitals.jl")
