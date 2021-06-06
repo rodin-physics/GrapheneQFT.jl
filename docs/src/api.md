@@ -18,4 +18,5 @@ Order   = [:constant, :type, :function, :macro]
   Ψ_pz
   coulomb_potential_pz
   coulomb_potential_pz_interp
+  coulomb_energy_pz_pz
 ```
