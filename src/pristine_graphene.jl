@@ -1,5 +1,17 @@
 # Nearest-neighbor hopping parameter
 const NN_hopping = 2.8
+
+# Graphene basis vectors
+# Distance between neighboring carbon atoms
+const graphene_lattice_constant = 2.46
+const sublattice_shift = -1 / √(3) * graphene_lattice_constant
+
+const graphene_d1 =
+    [graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
+
+const graphene_d2 =
+    [-graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
+
 #  Algebraic data type for graphene sublattices
 @data Sublattice begin
     A
@@ -141,13 +153,36 @@ end
 
 # Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
 # matrix. The calculation is sped up using the fact that the matrix is symmetric.
+function crystal_to_cartesian(coord::GrapheneCoord)
+    u = coord.u
+    v = coord.v
+    x = graphene_d1[1] * u + graphene_d2[1] * v
+    y = graphene_d1[2] * u + graphene_d2[2] * v
+
+    return ([x, y + (coord.sublattice == B) * sublattice_shift, 0.0])
+end
+
+
 function propagator_matrix(z, Coords::Vector{GrapheneCoord})
+    precomputed = Dict{Float64,ComplexF64}()
     len_coords = length(Coords)
     out = zeros(ComplexF64, len_coords, len_coords)
     for ii = 1:len_coords
         @inbounds for jj = ii:len_coords
-            out[ii, jj] = graphene_propagator(Coords[ii], Coords[jj], z)
-            out[jj, ii] = out[ii, jj]
+            dist = norm(
+                crystal_to_cartesian(Coords[ii]) -
+                crystal_to_cartesian(Coords[jj]),
+            )
+            c = get(precomputed, dist, 0.0)
+            if c == 0.0
+                res = graphene_propagator(Coords[ii], Coords[jj], z)
+                out[ii, jj] = res
+                out[jj, ii] = res
+                precomputed[dist] = res
+            else
+                out[ii, jj] = c
+                out[jj, ii] = c
+            end
         end
     end
     return out
