@@ -70,6 +70,32 @@ function graphene_B(u::Int, v::Int)
     return GrapheneCoord(u, v, B)
 end
 
+"""
+    graphene_neighbors(atom::GrapheneCoord)
+
+Determine the nearest neighbors of an `atom` and return a vector of the
+correspoding [`GrapheneCoord`](@ref)'s.
+"""
+function graphene_neighbors(atom::GrapheneCoord)
+    u = atom.u
+    v = atom.v
+    if atom.sublattice == A
+        return [
+            graphene_B(u, v)
+            graphene_B(u + 1, v)
+            graphene_B(u, v + 1)
+        ]
+    elseif atom.sublattice == B
+        return [
+            graphene_A(u, v)
+            graphene_A(u - 1, v)
+            graphene_A(u, v - 1)
+        ]
+    else
+        error("Illegal sublattice parameter")
+    end
+end
+
 ## Propagator
 # Integrals used in computing the propagator
 
@@ -131,8 +157,6 @@ end
     ))[1])
 end
 
-
-
 # The propagator function picks out the correct element of the Ξ matrix based
 # on the sublattices of the graphene coordinates.
 function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
@@ -150,19 +174,23 @@ function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
     end
 end
 
+"""
+    crystal_to_cartesian(coord::GrapheneCoord)
 
-# Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
-# matrix. The calculation is sped up using the fact that the matrix is symmetric.
+Convert a [`GrapheneCoord`](@ref) to a cartesian point with lengths in Å, where
+`GrapheneCoord(0, 0, A)` is at the origin.
+"""
 function crystal_to_cartesian(coord::GrapheneCoord)
     u = coord.u
     v = coord.v
     x = graphene_d1[1] * u + graphene_d2[1] * v
     y = graphene_d1[2] * u + graphene_d2[2] * v
 
-    return ([x, y + (coord.sublattice == B) * sublattice_shift, 0.0])
+    return ((x, y + (coord.sublattice == B) * sublattice_shift))
 end
 
-
+# Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
+# matrix. The calculation is sped up using the fact that the matrix is symmetric.
 function propagator_matrix(z, Coords::Vector{GrapheneCoord})
     precomputed = Dict{Float64,ComplexF64}()
     len_coords = length(Coords)
