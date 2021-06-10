@@ -63,52 +63,17 @@ my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], [p1, p2, p3])
 ]
 
 rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 20
+scattering_pairs =
+      [
+            (x, y) for x in my_system.scattering_atoms,
+            y in my_system.scattering_atoms
+      ] |> vec
 
-@test map(
-      (x, y) -> G_R(rand_num, x, y, my_system),
-      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
-      permutedims(
-            repeat(
-                  my_system.scattering_atoms,
-                  1,
-                  length(my_system.scattering_atoms),
-            ),
-      ),
-) |> real ≈
-      map(
-      (x, y) -> G_R(conj(rand_num), x, y, my_system),
-      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
-      permutedims(
-            repeat(
-                  my_system.scattering_atoms,
-                  1,
-                  length(my_system.scattering_atoms),
-            ),
-      ),
-) |> real
+@test G_R(rand_num, scattering_pairs, my_system) |> real ≈
+      G_R(conj.(rand_num), scattering_pairs, my_system) |> real
 
-@test map(
-      (x, y) -> G_R(rand_num, x, y, my_system),
-      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
-      permutedims(
-            repeat(
-                  my_system.scattering_atoms,
-                  1,
-                  length(my_system.scattering_atoms),
-            ),
-      ),
-) |> imag ≈
-      -map(
-      (x, y) -> G_R(conj(rand_num), x, y, my_system),
-      repeat(my_system.scattering_atoms, 1, length(my_system.scattering_atoms)),
-      permutedims(
-            repeat(
-                  my_system.scattering_atoms,
-                  1,
-                  length(my_system.scattering_atoms),
-            ),
-      ),
-) |> imag
+@test G_R(rand_num, scattering_pairs, my_system) |> imag ≈
+      -G_R(conj.(rand_num), scattering_pairs, my_system) |> imag
 
 @test abs(
       hcubature(
@@ -122,4 +87,4 @@ R_rand = 40 * rand()
 τ_rand = π * rand()
 exact_coulomb = coulomb_potential_pz(R_rand, τ_rand)[1]
 @test abs(coulomb_potential_pz_interp(R_rand, τ_rand) - exact_coulomb) /
-      exact_coulomb < 1e-3
+      exact_coulomb < 1e-2
