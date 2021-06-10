@@ -186,7 +186,7 @@ function crystal_to_cartesian(coord::GrapheneCoord)
     x = graphene_d1[1] * u + graphene_d2[1] * v
     y = graphene_d1[2] * u + graphene_d2[2] * v
 
-    return ((x, y + (coord.sublattice == B) * sublattice_shift))
+    return ([x, y + (coord.sublattice == B) * sublattice_shift])
 end
 
 # Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
