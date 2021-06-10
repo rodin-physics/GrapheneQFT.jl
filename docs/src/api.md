@@ -10,6 +10,8 @@ Order   = [:constant, :type, :function, :macro]
   GrapheneSystem
   graphene_A
   graphene_B
+  graphene_neighbors
+  crystal_to_cartesian
   mkGrapheneSystem
   δG_R
   G_R

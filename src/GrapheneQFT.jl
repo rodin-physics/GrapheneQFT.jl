@@ -64,6 +64,8 @@ using QuadGK
 export GrapheneCoord,
     graphene_A,
     graphene_B,
+    graphene_neighbors,
+    crystal_to_cartesian,
     Coupling,
     ImpurityState,
     GrapheneSystem,

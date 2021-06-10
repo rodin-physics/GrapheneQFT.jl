@@ -18,36 +18,7 @@
 #     return (Location(x, y + (coord.sublattice == B) * shft, 0.0))
 # end
 #
-# """
-#     graphene_neighbors(atom::GrapheneCoord)
-#
-# Determine the nearest neighbors of an atom.
-#
-# # Arguments
-# * `atom`: [`GrapheneCoord`](@ref) whose nearest neighbors are to be determined
-#
-# # Output
-# * A Vector of [`GrapheneCoord`](@ref) containing the neighbors of `atom`
-# """
-# function graphene_neighbors(atom::GrapheneCoord)
-#     u = atom.u
-#     v = atom.v
-#     if atom.sublattice == A
-#         return [
-#             graphene_B(u, v)
-#             graphene_B(u + 1, v)
-#             graphene_B(u, v + 1)
-#         ]
-#     elseif atom.sublattice == B
-#         return [
-#             graphene_A(u, v)
-#             graphene_A(u - 1, v)
-#             graphene_A(u, v - 1)
-#         ]
-#     else
-#         error("Illegal sublattice parameter")
-#     end
-# end
+
 
 # """
 #     struct Location
