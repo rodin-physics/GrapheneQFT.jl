@@ -96,6 +96,34 @@ function graphene_neighbors(atom::GrapheneCoord)
     end
 end
 
+"""
+    graphene_multiple_neighbors(atom::GrapheneCoord, n::Int)
+
+Return an array of [`GrapheneCoord`](@ref)'s obtained by iteratively running
+[`graphene_neighbors`](@ref) `n` times, applying it only to the
+newly-added [`GrapheneCoord`](@ref)'s from the past iteration. The entries in
+the result are unique and sorted by their distance from `atom`.
+
+# Arguments
+* `atom`: [`GrapheneCoord`](@ref) from which the iteration begins
+* `n`: number of iterations of [`graphene_neighbors`](@ref).
+"""
+function graphene_multiple_neighbors(atom::GrapheneCoord, idx::Int)
+    res = [atom]
+    atoms = [atom]
+    for ii = 1:idx
+        atoms =
+            filter(x -> x ∉ res, mapreduce(graphene_neighbors, vcat, atoms)) |>
+            unique
+        res = vcat(res, atoms)
+    end
+    res = sort(
+        res,
+        by = a ->
+            norm(crystal_to_cartesian(atom) - crystal_to_cartesian(a)),
+    )
+    return res
+end
 ## Propagator
 # Integrals used in computing the propagator
 
@@ -192,21 +220,26 @@ end
 # Given a list of [`GrapheneCoord`](@ref), this functiohn returns a Ξ(z) propagator
 # matrix. The calculation is sped up using the fact that the matrix is symmetric.
 function propagator_matrix(z, Coords::Vector{GrapheneCoord})
-    precomputed = Dict{Float64,ComplexF64}()
+    precomputed = Dict{
+        Tuple{Int,Int,GrapheneQFT.Sublattice,GrapheneQFT.Sublattice},
+        ComplexF64,
+    }()
     len_coords = length(Coords)
     out = zeros(ComplexF64, len_coords, len_coords)
     for ii = 1:len_coords
         @inbounds for jj = ii:len_coords
-            dist = norm(
-                crystal_to_cartesian(Coords[ii]) -
-                crystal_to_cartesian(Coords[jj]),
+            key_ = (
+                Coords[ii].u - Coords[jj].u,
+                Coords[ii].v - Coords[jj].v,
+                Coords[ii].sublattice,
+                Coords[jj].sublattice,
             )
-            c = get(precomputed, dist, 0.0)
+            c = get(precomputed, key_, 0.0)
             if c == 0.0
                 res = graphene_propagator(Coords[ii], Coords[jj], z)
                 out[ii, jj] = res
                 out[jj, ii] = res
-                precomputed[dist] = res
+                precomputed[key_] = res
             else
                 out[ii, jj] = c
                 out[jj, ii] = c
