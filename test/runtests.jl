@@ -1,27 +1,43 @@
 using Test, QuadGK, GrapheneQFT, Cubature
+## Testing pristine graphene
+a1 = graphene_A(0, 17)
+a2 = graphene_A(1, 1)
+a3 = graphene_B(3, -2)
+a4 = graphene_A(2, 7)
+a5 = graphene_A(0, 1)
 
-function random_atom()
-      u = rand(-20:20)
-      v = rand(-20:20)
-      return GrapheneQFT.GrapheneCoord(
-            u,
-            v,
-            rand() < 0.5 ? GrapheneQFT.A : GrapheneQFT.B,
-      )
-end
+@test a2 < a1
+@test a3 > a1
+@test a2 > a5
+@test a1 > a5
 
+@test sort(graphene_neighbors(a4)) ==
+      [graphene_B(2, 7), graphene_B(3, 7), graphene_B(2, 8)]
+
+@test sort(graphene_neighbors(a3)) ==
+      [graphene_A(3, -3), graphene_A(2, -2), graphene_A(3, -2)]
+
+@test crystal_to_cartesian(a1) == [
+      GrapheneQFT.graphene_d1[1] * 0 + GrapheneQFT.graphene_d2[1] * 17,
+      GrapheneQFT.graphene_d1[2] * 0 + GrapheneQFT.graphene_d2[2] * 17,
+]
+@test crystal_to_cartesian(a3) == [
+      GrapheneQFT.graphene_d1[1] * 3 + GrapheneQFT.graphene_d2[1] * (-2),
+      GrapheneQFT.graphene_d1[2] * 3 +
+      GrapheneQFT.graphene_d2[2] * (-2) +
+      GrapheneQFT.sublattice_shift,
+]
+##
+
+##
+
+##
 r1 = rand(-20:20, 10)
 r2 = rand(-20:20, 10)
 @test map((x, y) -> graphene_A(x, y), r1, r2) ==
       map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.A), r1, r2)
 @test map((x, y) -> graphene_B(x, y), r1, r2) ==
       map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.B), r1, r2)
-
-a1 = graphene_A(0, 17)
-a2 = graphene_A(1, 1)
-a3 = graphene_B(3, -2)
-a4 = graphene_A(2, 7)
-a5 = graphene_A(0, 1)
 
 ϵ1 = 1.7
 ϵ2 = -0.2
