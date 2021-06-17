@@ -13,6 +13,8 @@ Order   = [:constant, :type, :function, :macro]
   graphene_neighbors
   graphene_multiple_neighbors
   crystal_to_cartesian
+  noimps
+  nopert
   mkGrapheneSystem
   δG_R
   G_R

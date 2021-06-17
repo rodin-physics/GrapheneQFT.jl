@@ -18,6 +18,14 @@ const graphene_d2 =
     B
 end
 
+# Define a not function for the two sublattices
+function Base.:!(s::Sublattice)
+    @match s begin
+        A => B
+        B => A
+    end
+end
+
 """
     GrapheneCoord(u::Int, v::Int, sublattice::Sublattice)
 
@@ -79,21 +87,12 @@ correspoding [`GrapheneCoord`](@ref)'s.
 function graphene_neighbors(atom::GrapheneCoord)
     u = atom.u
     v = atom.v
-    if atom.sublattice == A
-        return [
-            graphene_B(u, v)
-            graphene_B(u + 1, v)
-            graphene_B(u, v + 1)
-        ]
-    elseif atom.sublattice == B
-        return [
-            graphene_A(u, v)
-            graphene_A(u - 1, v)
-            graphene_A(u, v - 1)
-        ]
-    else
-        error("Illegal sublattice parameter")
-    end
+    s = !atom.sublattice
+    return [
+        GrapheneCoord(u, v, s),
+        GrapheneCoord(u + (-1)^(s == A), v, s),
+        GrapheneCoord(u, v + (-1)^(s == A), s),
+    ]
 end
 
 """
@@ -191,14 +190,11 @@ function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
     t = NN_hopping
     u = a_l.u - a_m.u
     v = a_l.v - a_m.v
-    if a_l.sublattice == a_m.sublattice
-        return (z * Ω(z, u, v))
-    elseif ([a_l.sublattice, a_m.sublattice] == [A, B])
-        return (-t * (Ω(z, u, v) + Ωp(z, u, v)))
-    elseif ([a_l.sublattice, a_m.sublattice] == [B, A])
-        return (-t * (Ω(z, u, v) + Ωn(z, u, v)))
-    else
-        error("Illegal sublattice parameter")
+    @match [a_l.sublattice, a_m.sublattice] begin
+        [A, A] => z * Ω(z, u, v)
+        [B, B] => z * Ω(z, u, v)
+        [A, B] => -t * (Ω(z, u, v) + Ωp(z, u, v))
+        [B, A] => -t * (Ω(z, u, v) + Ωn(z, u, v))
     end
 end
 

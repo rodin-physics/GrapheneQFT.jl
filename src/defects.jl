@@ -13,6 +13,22 @@ struct ImpurityState
 end
 
 """
+    const noimps = ImpurityState[]
+
+An empty array to be used in constructing the [`GrapheneSystem`](@ref) if
+there are no impurity states.
+"""
+const noimps = ImpurityState[]
+
+"""
+    const nopert = Tuple{GrapheneCoord,GrapheneCoord,Float64}[]
+
+An empty array to be used in constructing the [`GrapheneSystem`](@ref) if
+there are no direct perturbation terms.
+"""
+const nopert = Tuple{GrapheneCoord,GrapheneCoord,Float64}[]
+
+"""
     GrapheneSystem(
         μ::Float64,
         T::Float64,
@@ -69,11 +85,16 @@ function mkGrapheneSystem(
     pert::Vector{Tuple{GrapheneCoord,GrapheneCoord,Float64}},
 )
     # Create a coupling dictionary
-    pert_dict =
-        reduce(
-            vcat,
-            map(x -> [((x[1], x[2]), x[3]), ((x[2], x[1]), x[3])], pert),
-        ) |> Dict
+    if isempty(pert)
+        pert_dict = Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}()
+    else
+        pert_dict =
+            reduce(
+                vcat,
+                map(x -> [((x[1], x[2]), x[3]), ((x[2], x[1]), x[3])], pert),
+            ) |> Dict
+    end
+
     # Get the coordinates of all the directly-perturbed atoms
     perturbed_atoms = map(x -> x[1], pert_dict |> keys |> collect) |> unique
     # Get the coordinates of atoms coupled to impurities
@@ -109,3 +130,16 @@ function mkGrapheneSystem(
     imp_energies = map(x -> x.ϵ, imps)
     return GrapheneSystem(μ, T, Δ, V, all_atoms, imp_energies)
 end
+# mkGrapheneSystem(0.0, 0.0, GrapheneQFT.noimps, GrapheneQFT.nopert)
+#
+# pert_dict =
+#     Dict{Tuple{GrapheneQFT.GrapheneCoord,GrapheneQFT.GrapheneCoord},Float64}()
+# pert_dict|>keys
+#
+# pert_dict_2 = [((graphene_A(0,0), graphene_B(0,0)),2.5)]|>Dict
+#
+# typeof(pert_dict) == typeof(pert_dict_2)
+# typeof(pert_dict_2)
+#
+# typeof(pert_dict)
+#
