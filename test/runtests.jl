@@ -11,21 +11,20 @@ a5 = graphene_A(0, 1)
 @test a2 > a5
 @test a1 > a5
 
-@test sort(graphene_neighbors(a4)) ==
-      [graphene_B(2, 7), graphene_B(3, 7), graphene_B(2, 8)]
+@test sort(graphene_neighbors(a4)) == [graphene_B(2, 7), graphene_B(3, 7), graphene_B(2, 8)]
 
 @test sort(graphene_neighbors(a3)) ==
       [graphene_A(3, -3), graphene_A(2, -2), graphene_A(3, -2)]
 
 @test crystal_to_cartesian(a1) == [
-      GrapheneQFT.graphene_d1[1] * 0 + GrapheneQFT.graphene_d2[1] * 17,
-      GrapheneQFT.graphene_d1[2] * 0 + GrapheneQFT.graphene_d2[2] * 17,
+    GrapheneQFT.graphene_d1[1] * 0 + GrapheneQFT.graphene_d2[1] * 17,
+    GrapheneQFT.graphene_d1[2] * 0 + GrapheneQFT.graphene_d2[2] * 17,
 ]
 @test crystal_to_cartesian(a3) == [
-      GrapheneQFT.graphene_d1[1] * 3 + GrapheneQFT.graphene_d2[1] * (-2),
-      GrapheneQFT.graphene_d1[2] * 3 +
-      GrapheneQFT.graphene_d2[2] * (-2) +
-      GrapheneQFT.sublattice_shift,
+    GrapheneQFT.graphene_d1[1] * 3 + GrapheneQFT.graphene_d2[1] * (-2),
+    GrapheneQFT.graphene_d1[2] * 3 +
+    GrapheneQFT.graphene_d2[2] * (-2) +
+    GrapheneQFT.sublattice_shift,
 ]
 ##
 
@@ -64,26 +63,23 @@ my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], [p1, p2, p3])
 @test my_system.scattering_atoms == [a5, a2, a4, a1, a3]
 
 @test my_system.Δ == [
-      0 0 0 0 0
-      0 0 0 c2 0
-      0 0 0 0 0
-      0 c2 0 c1 c3
-      0 0 0 c3 0
+    0 0 0 0 0
+    0 0 0 c2 0
+    0 0 0 0 0
+    0 c2 0 c1 c3
+    0 0 0 c3 0
 ]
 @test my_system.V == [
-      0 V3
-      0 0
-      V1 0
-      0 0
-      V2 0
+    0 V3
+    0 0
+    V1 0
+    0 0
+    V2 0
 ]
 
 rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 20
 scattering_pairs =
-      [
-            (x, y) for x in my_system.scattering_atoms,
-            y in my_system.scattering_atoms
-      ] |> vec
+    [(x, y) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
 
 @test G_R(rand_num, scattering_pairs, my_system) |> real ≈
       G_R(conj.(rand_num), scattering_pairs, my_system) |> real
@@ -92,15 +88,12 @@ scattering_pairs =
       -G_R(conj.(rand_num), scattering_pairs, my_system) |> imag
 
 @test abs(
-      hcubature(
-            r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]),
-            [0, 0],
-            [40, π],
-      )[1] - 1,
+    hcubature(r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]), [0, 0], [40, π])[1] -
+    1,
 ) < 1e-6
 
 R_rand = 40 * rand()
 τ_rand = π * rand()
 exact_coulomb = coulomb_potential_pz(R_rand, τ_rand)[1]
-@test abs(coulomb_potential_pz_interp(R_rand, τ_rand) - exact_coulomb) /
-      exact_coulomb < 1e-2
+@test abs(coulomb_potential_pz_interp(R_rand, τ_rand) - exact_coulomb) / exact_coulomb <
+      1e-2
