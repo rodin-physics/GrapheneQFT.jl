@@ -45,10 +45,7 @@ function coulomb_potential_pz(R::Float64, τ::Float64)
         r ->
             Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]) ./ (√(
                 r[1]^2 + R^2 -
-                2 *
-                r[1] *
-                R *
-                (cos(τ) * cos(r[2]) + cos(r[3]) * sin(τ) * sin(r[2])),
+                2 * r[1] * R * (cos(τ) * cos(r[2]) + cos(r[3]) * sin(τ) * sin(r[2])),
             )),
         [0, 0, 0],
         [40, π, 2 * π],
@@ -90,11 +87,8 @@ end
     # dist is a CARTESIAN vector pointing from the center of the second pz to
     # the same point
     dist =
-        [ρ[1], ρ[2], ρ[3]] - [
-            r[1] * sin(r[2]) * cos(r[3]),
-            r[1] * sin(r[2]) * sin(r[3]),
-            r[1] * cos(r[2]),
-        ]
+        [ρ[1], ρ[2], ρ[3]] -
+        [r[1] * sin(r[2]) * cos(r[3]), r[1] * sin(r[2]) * sin(r[3]), r[1] * cos(r[2])]
     res =
         Ψ_pz(r[1], r[2]) .^ 2 *
         r[1]^2 *

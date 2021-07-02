@@ -24,9 +24,7 @@ function δG_R(
     # for every pair of coordinates
     prop_mat = propagator_matrix(z, s.scattering_atoms)
     if length(s.imps) == 0
-        D =
-            s.Δ *
-            inv(Diagonal(ones(length(s.scattering_atoms))) .- prop_mat * s.Δ)
+        D = s.Δ * inv(Diagonal(ones(length(s.scattering_atoms))) .- prop_mat * s.Δ)
     else
         Γ0 = 1 ./ (z .- s.imps) |> Diagonal
         D =
@@ -36,17 +34,13 @@ function δG_R(
             )
     end
 
-    PropVectorRs = [
-        [graphene_propagator(x, p[2], z) for x in s.scattering_atoms] for
-        p in pairs
-    ]
+    PropVectorRs =
+        [[graphene_propagator(x, p[2], z) for x in s.scattering_atoms] for p in pairs]
 
     PropVectorLs = [
         pairs[idx][1] == pairs[idx][2] ? permutedims(PropVectorRs[idx]) :
-        [
-            graphene_propagator(pairs[idx][1], x, z) for
-            x in s.scattering_atoms
-        ] |> permutedims for idx = 1:length(pairs)
+            [graphene_propagator(pairs[idx][1], x, z) for x in s.scattering_atoms] |> permutedims
+        for idx = 1:length(pairs)
     ]
 
     res = [(PropVectorLs[ii]*D*PropVectorRs[ii])[1] for ii = 1:length(pairs)]
@@ -71,8 +65,7 @@ function G_R(
     pairs::Vector{Tuple{GrapheneCoord,GrapheneCoord}},
     s::GrapheneSystem,
 )
-    res =
-        [graphene_propagator(p[1], p[2], z) for p in pairs] + δG_R(z, pairs, s)
+    res = [graphene_propagator(p[1], p[2], z) for p in pairs] + δG_R(z, pairs, s)
     return res
 end
 
@@ -102,10 +95,7 @@ function δΓ(z::ComplexF64, s::GrapheneSystem)
             Γ0 *
             adjoint(s.V) *
             Λ *
-            inv(
-                Diagonal(ones(length(s.scattering_atoms))) -
-                s.V * Γ0 * adjoint(s.V) * Λ,
-            ) *
+            inv(Diagonal(ones(length(s.scattering_atoms))) - s.V * Γ0 * adjoint(s.V) * Λ) *
             s.V *
             Γ0
         return res
