@@ -48,9 +48,9 @@ V3 = -7.1
 imp1 = ImpurityState(ϵ1, [(V1, a4), (V2, a3)])
 imp2 = ImpurityState(ϵ2, [(V3, a5)])
 
-c1 = 3.0
-c2 = 5.0
-c3 = -9.0
+c1 = 3.0 + 0im
+c2 = 5.0 + 1im
+c3 = -9.0 + 0im
 
 p1 = (a1, a1, c1)
 p2 = (a2, a1, c2)
@@ -66,7 +66,7 @@ my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], [p1, p2, p3])
     0 0 0 0 0
     0 0 0 c2 0
     0 0 0 0 0
-    0 c2 0 c1 c3
+    0 conj(c2) 0 c1 c3
     0 0 0 c3 0
 ]
 @test my_system.V == [
@@ -81,11 +81,14 @@ rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 20
 scattering_pairs =
     [(x, y) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
 
+scattering_pairs_Reverse =
+    [(y, x) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
+
 @test G_R(rand_num, scattering_pairs, my_system) |> real ≈
-      G_R(conj.(rand_num), scattering_pairs, my_system) |> real
+      G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real
 
 @test G_R(rand_num, scattering_pairs, my_system) |> imag ≈
-      -G_R(conj.(rand_num), scattering_pairs, my_system) |> imag
+      -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag
 
 @test abs(
     hcubature(r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]), [0, 0], [40, π])[1] -

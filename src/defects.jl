@@ -21,18 +21,18 @@ there are no impurity states.
 const noimps = ImpurityState[]
 
 """
-    const nopert = Tuple{GrapheneCoord,GrapheneCoord,Float64}[]
+    const nopert = Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}[]
 
 An empty array to be used in constructing the [`GrapheneSystem`](@ref) if
 there are no direct perturbation terms.
 """
-const nopert = Tuple{GrapheneCoord,GrapheneCoord,Float64}[]
+const nopert = Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}[]
 
 """
     GrapheneSystem(
         μ::Float64,
         T::Float64,
-        Δ::Array{Float64,2},
+        Δ::Array{ComplexF64,2},
         V::Array{Float64,2},
         scattering_atoms::Vector{GrapheneCoord},
         imps::Vector{Float64},
@@ -45,7 +45,7 @@ See also [`mkGrapheneSystem`](@ref).
 struct GrapheneSystem
     μ::Float64                              # Chemical potential
     T::Float64                              # Temperature
-    Δ::Array{Float64,2}                     # Δ matrix
+    Δ::Array{ComplexF64,2}                  # Δ matrix
     V::Array{Float64,2}                     # V Matrix
     scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
     imps::Vector{Float64}                   # Impurity energies
@@ -56,7 +56,7 @@ end
         μ::Float64,
         T::Float64,
         imps::Vector{ImpurityState},
-        pert::Vector{Tuple{GrapheneCoord,GrapheneCoord,Float64}},
+        pert::Vector{Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}},
     )
 
 Construct [`GrapheneSystem`](@ref).
@@ -82,16 +82,16 @@ function mkGrapheneSystem(
     μ::Float64,
     T::Float64,
     imps::Vector{ImpurityState},
-    pert::Vector{Tuple{GrapheneCoord,GrapheneCoord,Float64}},
+    pert::Vector{Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}},
 )
     # Create a coupling dictionary
     if isempty(pert)
-        pert_dict = Dict{Tuple{GrapheneCoord,GrapheneCoord},Float64}()
+        pert_dict = Dict{Tuple{GrapheneCoord,GrapheneCoord},ComplexF64}()
     else
         pert_dict =
             reduce(
                 vcat,
-                map(x -> [((x[1], x[2]), x[3]), ((x[2], x[1]), x[3])], pert),
+                map(x -> [((x[1], x[2]), x[3]), ((x[2], x[1]), conj(x[3]))], pert),
             ) |> Dict
     end
 
@@ -111,13 +111,11 @@ function mkGrapheneSystem(
     # Assemble Δ
     all_atoms_M = repeat(all_atoms, 1, length(all_atoms))
     all_atoms_M_T = permutedims(all_atoms_M)
-    Δ = map((x, y) -> get!(pert_dict, (x, y), 0.0), all_atoms_M, all_atoms_M_T)
+    Δ = map((x, y) -> get!(pert_dict, (x, y), 0.0 + 0.0im), all_atoms_M, all_atoms_M_T)
     # Assemble V
     V_array = map(
         imp -> map(
-            atom -> sum(
-                map(c -> ((atom == c[2]) * c[1]), imp.coupling),
-            )::Float64,
+            atom -> sum(map(c -> ((atom == c[2]) * c[1]), imp.coupling),)::Float64,
             all_atoms,
         ),
         imps,
@@ -130,16 +128,3 @@ function mkGrapheneSystem(
     imp_energies = map(x -> x.ϵ, imps)
     return GrapheneSystem(μ, T, Δ, V, all_atoms, imp_energies)
 end
-# mkGrapheneSystem(0.0, 0.0, GrapheneQFT.noimps, GrapheneQFT.nopert)
-#
-# pert_dict =
-#     Dict{Tuple{GrapheneQFT.GrapheneCoord,GrapheneQFT.GrapheneCoord},Float64}()
-# pert_dict|>keys
-#
-# pert_dict_2 = [((graphene_A(0,0), graphene_B(0,0)),2.5)]|>Dict
-#
-# typeof(pert_dict) == typeof(pert_dict_2)
-# typeof(pert_dict_2)
-#
-# typeof(pert_dict)
-#

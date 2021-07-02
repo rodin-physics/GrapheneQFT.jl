@@ -183,14 +183,13 @@ end
 # The propagator function picks out the correct element of the Ξ matrix based
 # on the sublattices of the graphene coordinates.
 function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
-    t = NN_hopping
     u = a_l.u - a_m.u
     v = a_l.v - a_m.v
     @match [a_l.sublattice, a_m.sublattice] begin
         [A, A] => z * Ω(z, u, v)
         [B, B] => z * Ω(z, u, v)
-        [A, B] => -t * (Ω(z, u, v) + Ωp(z, u, v))
-        [B, A] => -t * (Ω(z, u, v) + Ωn(z, u, v))
+        [A, B] => -NN_hopping * (Ω(z, u, v) + Ωp(z, u, v))
+        [B, A] => -NN_hopping * (Ω(z, u, v) + Ωn(z, u, v))
     end
 end
 
