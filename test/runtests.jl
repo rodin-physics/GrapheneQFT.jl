@@ -6,10 +6,18 @@ a3 = graphene_B(3, -2)
 a4 = graphene_A(2, 7)
 a5 = graphene_A(0, 1)
 
-@test a2 < a1
-@test a3 > a1
-@test a2 > a5
-@test a1 > a5
+@test map(x -> GrapheneCoord(x.u, x.v, !x.sublattice), [a1, a2, a3, a4, a5]) == [
+    graphene_B(0, 17),
+    graphene_B(1, 1),
+    graphene_A(3, -2),
+    graphene_B(2, 7),
+    graphene_B(0, 1),
+]
+
+@test isless(a2, a1) == true
+@test isless(a3, a1) == false
+@test isless(a2, a5) == false
+@test isless(a1, a5) == false
 
 @test sort(graphene_neighbors(a4)) == [graphene_B(2, 7), graphene_B(3, 7), graphene_B(2, 8)]
 
@@ -26,11 +34,8 @@ a5 = graphene_A(0, 1)
     GrapheneQFT.graphene_d2[2] * (-2) +
     GrapheneQFT.sublattice_shift,
 ]
-##
 
-##
-
-##
+## Testing defects
 r1 = rand(-20:20, 10)
 r2 = rand(-20:20, 10)
 @test map((x, y) -> graphene_A(x, y), r1, r2) ==
@@ -77,7 +82,7 @@ my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], [p1, p2, p3])
     V2 0
 ]
 
-rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 20
+rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 5
 scattering_pairs =
     [(x, y) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
 
@@ -90,11 +95,29 @@ scattering_pairs_Reverse =
 @test G_R(rand_num, scattering_pairs, my_system) |> imag ≈
       -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag
 
+my_system = mkGrapheneSystem(0.0, 0.0, noimps, [p1, p2, p3])
+
+@test G_R(rand_num, scattering_pairs, my_system) |> real ≈
+      G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real
+
+@test G_R(rand_num, scattering_pairs, my_system) |> imag ≈
+      -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag
+
+my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], nopert)
+
+@test G_R(rand_num, scattering_pairs, my_system) |> real ≈
+      G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real
+
+@test G_R(rand_num, scattering_pairs, my_system) |> imag ≈
+      -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag
+
 @test abs(
     hcubature(r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]), [0, 0], [40, π])[1] -
     1,
 ) < 1e-6
 
+
+## Testing orbitals
 R_rand = 40 * rand()
 τ_rand = π * rand()
 exact_coulomb = coulomb_potential_pz(R_rand, τ_rand)[1]
