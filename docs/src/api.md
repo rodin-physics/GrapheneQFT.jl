@@ -16,6 +16,7 @@ Order   = [:constant, :type, :function, :macro]
   noimps
   nopert
   mkGrapheneSystem
+  peierls_phase
   δG_R
   G_R
   δΓ

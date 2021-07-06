@@ -7,8 +7,9 @@ const graphene_lattice_constant = 2.46
 const sublattice_shift = -1 / √(3) * graphene_lattice_constant
 
 const graphene_d1 = [graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
-
 const graphene_d2 = [-graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
+
+const UC_area = graphene_d1[1] * graphene_d2[2] - graphene_d1[2] * graphene_d2[1] |> abs
 
 #  Algebraic data type for graphene sublattices
 @data Sublattice begin

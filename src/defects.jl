@@ -96,35 +96,81 @@ function mkGrapheneSystem(
     end
 
     # Get the coordinates of all the directly-perturbed atoms
-    perturbed_atoms = map(x -> x[1], pert_dict |> keys |> collect) |> unique
+    perturbed_atoms = [x[1] for x in pert_dict |> keys |> collect] |> unique
     # Get the coordinates of atoms coupled to impurities
-    coupled_atoms = map(
-        y -> y[2],
-        reduce(
+    coupled_atoms = [
+        y[2]
+        for
+        y in reduce(
             vcat,
-            map(x -> x.coupling, imps),
+            [x.coupling for x in imps],
             init = Vector{Tuple{Float64,GrapheneCoord}}[],
-        ),
-    )
+        )
+    ]
     # Combine the two sets of coordinates and keep only unique entries
     all_atoms = vcat(perturbed_atoms, coupled_atoms) |> unique |> sort
     # Assemble Δ
-    all_atoms_M = repeat(all_atoms, 1, length(all_atoms))
-    all_atoms_M_T = permutedims(all_atoms_M)
-    Δ = map((x, y) -> get!(pert_dict, (x, y), 0.0 + 0.0im), all_atoms_M, all_atoms_M_T)
+    Δ = [get!(pert_dict, (x, y), 0.0 + 0.0im) for x in all_atoms, y in all_atoms]
     # Assemble V
-    V_array = map(
-        imp -> map(
-            atom -> sum(map(c -> ((atom == c[2]) * c[1]), imp.coupling),)::Float64,
-            all_atoms,
-        ),
-        imps,
-    )
+    V_array = [
+        [
+            sum([((atom == c[2]) * c[1]) for c in imp.coupling])::Float64 for atom in all_atoms
+        ] for imp in imps
+    ]
     if !isempty(V_array)
         V = reduce(hcat, V_array)
     else
         V = Array{GrapheneCoord}(undef, 0, 0)
     end
-    imp_energies = map(x -> x.ϵ, imps)
+    imp_energies = [x.ϵ for x in imps]
     return GrapheneSystem(μ, T, Δ, V, all_atoms, imp_energies)
+end
+
+"""
+    peierls_phase(vec_pot, a1::GrapheneCoord, a2::GrapheneCoord)
+
+Calculate the phase used in the Peierls substitution to include the effects of
+the magnetic field.
+
+To make the units work out better, the magnetic
+field ``\\mathbf{B}(x, y, z) = \\Phi_0/\\mathcal{V} \\mathbf{f}(x, y, z)``,
+where ``\\mathcal{V}`` is the area of the graphene unit cell in Å², ``\\Phi_0 = h / 2e``
+is the magnetic flux quantum, and ``\\mathbf{f}(x, y, z) =
+\\nabla \\times \\mathbf{g}(x,y,z)`` is a dimensionless vector function. Note that
+``\\mathbf{f} = 1`` produces a field of about 40000 T.
+
+For the vector potential, we have
+``\\mathbf{A}(x, y, z) =\\Phi_0 / \\mathcal{V} \\mathbf{g}(x, y, z)``, where
+``\\mathbf{g}(x, y, z)`` has the units of Å. Using the definition of the Peierls
+phase, one gets
+
+```math
+\\phi = -\\frac{\\pi}{ \\Phi_0} \\int \\mathbf{A}\\cdot d\\mathbf{l} =
+-\\frac{\\pi}{ \\mathcal{V}} \\int  \\mathbf{g}(x, y, z) \\cdot d\\mathbf{l}
+\\rightarrow
+-\\frac{\\pi}{ \\mathcal{V}} \\int  \\mathbf{g}_{xy}(x, y) \\cdot d\\mathbf{l}\\,.
+```
+
+The last step follows from the fact that the graphene system resides in the ``xy``
+plane, so one needs to retain only the ``x`` and ``y`` componends of ``\\mathbf{g}``,
+as denoted by the subscript ``xy``.
+
+# Arguments
+* `vec_pot(x,y)`: ``\\mathbf{g}_{xy}(x, y)`` in Å with `x` and `y` in Å.
+* `a1`: [`GrapheneCoord`](@ref) of the "from" atom.
+* `a2`: [`GrapheneCoord`](@ref) of the "to" atom.
+
+`vec_pot(x,y)` needs to return a tuple corresponding to the vector potential in
+    ``x`` and ``y`` directions.
+"""
+function peierls_phase(vec_pot, a1::GrapheneCoord, a2::GrapheneCoord)
+    a1_loc = crystal_to_cartesian(a1)
+    a2_loc = crystal_to_cartesian(a2)
+    disp = a2_loc - a1_loc
+    res = quadgk(
+        u -> vec_pot(a1_loc[1] + u * disp[1], a1_loc[2] + u * disp[2]) .* disp |> sum,
+        0,
+        1,
+    )[1]
+    return (-π * res / UC_area)
 end

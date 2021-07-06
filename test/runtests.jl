@@ -103,6 +103,8 @@ my_system = mkGrapheneSystem(0.0, 0.0, noimps, [p1, p2, p3])
 @test G_R(rand_num, scattering_pairs, my_system) |> imag ≈
       -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag
 
+@test_throws ErrorException δΓ(rand_num, my_system)
+
 my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], nopert)
 
 @test G_R(rand_num, scattering_pairs, my_system) |> real ≈
@@ -111,13 +113,13 @@ my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], nopert)
 @test G_R(rand_num, scattering_pairs, my_system) |> imag ≈
       -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag
 
+## Testing orbitals
+
 @test abs(
     hcubature(r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]), [0, 0], [40, π])[1] -
     1,
 ) < 1e-6
 
-
-## Testing orbitals
 R_rand = 40 * rand()
 τ_rand = π * rand()
 exact_coulomb = coulomb_potential_pz(R_rand, τ_rand)[1]

@@ -78,6 +78,7 @@ export GrapheneCoord,
     δΓ,
     Γ,
     Ψ_pz,
+    peierls_phase,
     coulomb_potential_pz,
     coulomb_potential_pz_interp,
     coulomb_energy_pz_pz
