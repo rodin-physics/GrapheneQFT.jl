@@ -62,8 +62,8 @@ using MLStyle
 using QuadGK
 
 export GrapheneCoord,
-    graphene_A,
-    graphene_B,
+    A,
+    B,
     graphene_neighbors,
     graphene_multiple_neighbors,
     crystal_to_cartesian,
