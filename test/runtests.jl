@@ -1,17 +1,17 @@
 using Test, QuadGK, GrapheneQFT, Cubature
 ## Testing pristine graphene
-a1 = graphene_A(0, 17)
-a2 = graphene_A(1, 1)
-a3 = graphene_B(3, -2)
-a4 = graphene_A(2, 7)
-a5 = graphene_A(0, 1)
+a1 = GrapheneCoord(0, 17, A)
+a2 = GrapheneCoord(1, 1, A)
+a3 = GrapheneCoord(3, -2, B)
+a4 = GrapheneCoord(2, 7, A)
+a5 = GrapheneCoord(0, 1, A)
 
 @test map(x -> GrapheneCoord(x.u, x.v, !x.sublattice), [a1, a2, a3, a4, a5]) == [
-    graphene_B(0, 17),
-    graphene_B(1, 1),
-    graphene_A(3, -2),
-    graphene_B(2, 7),
-    graphene_B(0, 1),
+    GrapheneCoord(0, 17, B),
+    GrapheneCoord(1, 1, B),
+    GrapheneCoord(3, -2, A),
+    GrapheneCoord(2, 7, B),
+    GrapheneCoord(0, 1, B),
 ]
 
 @test isless(a2, a1) == true
@@ -19,10 +19,11 @@ a5 = graphene_A(0, 1)
 @test isless(a2, a5) == false
 @test isless(a1, a5) == false
 
-@test sort(graphene_neighbors(a4)) == [graphene_B(2, 7), graphene_B(3, 7), graphene_B(2, 8)]
+@test sort(graphene_neighbors(a4)) ==
+      [GrapheneCoord(2, 7, B), GrapheneCoord(3, 7, B), GrapheneCoord(2, 8, B)]
 
 @test sort(graphene_neighbors(a3)) ==
-      [graphene_A(3, -3), graphene_A(2, -2), graphene_A(3, -2)]
+      [GrapheneCoord(3, -3, A), GrapheneCoord(2, -2, A), GrapheneCoord(3, -2, A)]
 
 @test crystal_to_cartesian(a1) == [
     GrapheneQFT.graphene_d1[1] * 0 + GrapheneQFT.graphene_d2[1] * 17,
@@ -38,10 +39,10 @@ a5 = graphene_A(0, 1)
 ## Testing defects
 r1 = rand(-20:20, 10)
 r2 = rand(-20:20, 10)
-@test map((x, y) -> graphene_A(x, y), r1, r2) ==
-      map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.A), r1, r2)
-@test map((x, y) -> graphene_B(x, y), r1, r2) ==
-      map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, GrapheneQFT.B), r1, r2)
+@test map((x, y) -> GrapheneCoord(x, y, A), r1, r2) ==
+      map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, A), r1, r2)
+@test map((x, y) -> GrapheneCoord(x, y, B), r1, r2) ==
+      map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, B), r1, r2)
 
 ϵ1 = 1.7
 ϵ2 = -0.2

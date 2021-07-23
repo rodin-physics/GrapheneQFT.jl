@@ -28,8 +28,7 @@ end
 """
     GrapheneCoord(u::Int, v::Int, sublattice::Sublattice)
 
-Lattice coordinate of a carbon atom, generated using [`graphene_A`](@ref) or
-[`graphene_B`](@ref).
+Lattice coordinate of a carbon atom.
 
 Each coordinate contains the sublattice index `A` or `B`, as well as
 the integer coefficients of the two basis vectors
@@ -55,26 +54,6 @@ function Base.isless(a1::GrapheneCoord, a2::GrapheneCoord)
             return isless(a1.v, a2.v)
         end
     end
-end
-
-"""
-    graphene_A(u::Int, v::Int)
-
-Create a [`GrapheneCoord`](@ref) for an atom belonging to sublattice A at the
-unit cell (u, v).
-"""
-function graphene_A(u::Int, v::Int)
-    return GrapheneCoord(u, v, A)
-end
-
-"""
-    graphene_B(u::Int, v::Int)
-
-Create a [`GrapheneCoord`](@ref) for an atom belonging to sublattice B at the
-unit cell (u, v).
-"""
-function graphene_B(u::Int, v::Int)
-    return GrapheneCoord(u, v, B)
 end
 
 """

@@ -3,13 +3,11 @@
 Modules = [GrapheneQFT]
 Order   = [:constant, :type, :function, :macro]
 ```
-
+## Pristine Graphene
 ```@docs
   GrapheneCoord
   ImpurityState
   GrapheneSystem
-  graphene_A
-  graphene_B
   graphene_neighbors
   graphene_multiple_neighbors
   crystal_to_cartesian
@@ -17,10 +15,19 @@ Order   = [:constant, :type, :function, :macro]
   nopert
   mkGrapheneSystem
   peierls_phase
+```
+## Green's Functions
+
+```@docs
   δG_R
   G_R
   δΓ
   Γ
+```
+
+## Carbon Orbitals
+
+```@docs
   Ψ_pz
   coulomb_potential_pz
   coulomb_potential_pz_interp
