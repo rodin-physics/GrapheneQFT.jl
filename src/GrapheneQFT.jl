@@ -42,7 +42,7 @@ end # module
 
 
 # Example:
-# 
+#
 # Pick a few graphene coordinates:
 # ```
 # a1 = graphene_A(0, 17)

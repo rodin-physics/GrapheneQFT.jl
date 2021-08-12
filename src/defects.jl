@@ -68,7 +68,7 @@ Construct [`GrapheneSystem`](@ref).
 * `pert`: a list of 3-tuples describing the coupling between carbon atoms
 
 When supplying `pert`, ensure that each coordinate pair appears only once as
-repeated pairs with different couplings will cause eariler values to be
+repeated pairs with different couplings will cause earlier values to be
 overwritten. The order of the coordinates does not matter. A tuple with the same
 coordinate given twice creates and on-site potential for the coordinate.
 

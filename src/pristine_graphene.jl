@@ -60,7 +60,7 @@ end
     graphene_neighbors(atom::GrapheneCoord)
 
 Determine the nearest neighbors of an `atom` and return a vector of the
-correspoding [`GrapheneCoord`](@ref)'s.
+corresponding [`GrapheneCoord`](@ref)'s.
 """
 function graphene_neighbors(atom::GrapheneCoord)
     u = atom.u
