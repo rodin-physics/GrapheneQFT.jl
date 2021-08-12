@@ -25,6 +25,9 @@ a5 = GrapheneCoord(0, 1, A)
 @test sort(graphene_neighbors(a3)) ==
       [GrapheneCoord(3, -3, A), GrapheneCoord(2, -2, A), GrapheneCoord(3, -2, A)]
 
+@test vcat(a2, sort(graphene_neighbors(a2))) ==
+    sort(graphene_multiple_neighbors(a2, 1))
+    
 @test crystal_to_cartesian(a1) == [
     GrapheneQFT.graphene_d1[1] * 0 + GrapheneQFT.graphene_d2[1] * 17,
     GrapheneQFT.graphene_d1[2] * 0 + GrapheneQFT.graphene_d2[2] * 17,
