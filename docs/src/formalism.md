@@ -4,7 +4,7 @@
 
 To model graphene coupled to external electronic states and influenced by an external perturbation, it is helpful to start with the following generic Hamiltonian
 
-$$\hat{\mathcal{H}} = \sum_{ab} c^\dagger_a  H_{ab} c_b + \sum_{ab} g^\dagger_a h_{ab} g_b+ \sum_{ab} g^\dagger_a V_{ab} c_b + c^\dagger_b V_{ab}^* g_a
+$$\hat{\mathcal{H}} = \sum_{ab} c^\dagger_a  H_{ab} c_b + \sum_{ab} g^\dagger_a h_{ab} g_b+ \sum_{ab} g^\dagger_a V_{ab}^* c_b + c^\dagger_b V_{ab} g_a
 	\,.$$
 
 Here, we have introduced two fermionic systems with the corresponding second-quatized operators $c$ and $g$, governed by the Hamiltonians $H$ and $h$, respectively, while $V_{ab}$ represent the coupling between them. The subscripts $a$ and $b$ label the individual states in these systems.
@@ -13,7 +13,7 @@ The expression can be made more compact by defining $\mathbf{c}$ and $\mathbf{d}
 
 $$\hat{\mathcal{H}} = 	\mathbf{c}^\dagger H\mathbf{c}
 	+ 	\mathbf{g}^\dagger h\mathbf{g}
-	+ \mathbf{g}^\dagger V \mathbf{c} +  \mathbf{c}^\dagger V^\dagger \mathbf{g}
+	+ \mathbf{g}^\dagger V^\dagger \mathbf{c} +  \mathbf{c}^\dagger V \mathbf{g}
 	\,.$$
 
 At this point, we identify $h$ as the Hamiltonian describing the external electronic states and $H = H_0 + \Delta$ as a combination of the pristine graphene Hamiltonian $H_0$ and a perturbation $\Delta$.
@@ -36,20 +36,20 @@ action
 
 $$S = \sum_{\omega_n}	\bar\psi_n \left[\left(-i\omega_n  - \mu\right)\mathbf{1}+ H\right]\psi_n
 	+ \bar\phi_n\left[\left(-i\omega_n  - \mu\right)\mathbf{1}+ h \right]\phi_n
-	+ \bar\phi_nV \psi_n +  \bar\psi_n V^\dagger \phi_n
+	+ \bar\phi_n V^\dagger \psi_n +  \bar\psi_n V \phi_n
 	\\
 	= \sum_{\omega_n}	\bar\psi_n \left(-G^{-1}_{i\omega_n+\mu}\right)\psi_n
 		+ \bar\phi_n\left(-\Gamma^{-1}_{0,i\omega_n+\mu} \right)\phi_n
-		+ \bar\phi_nV \psi_n +  \bar\psi_n V^\dagger \phi_n
+		+ \bar\phi_n V^\dagger \psi_n +  \bar\psi_n V \phi_n
 		\\
 	= \sum_{\omega_n}
 	\begin{pmatrix}
 		\bar\psi_n & \bar\phi_n
 	\end{pmatrix}	 
 	\begin{pmatrix}
-		-G^{-1}_{i\omega_n+\mu}	& V^\dagger
+		-G^{-1}_{i\omega_n+\mu}	& V
 			\\
-			V &-\Gamma^{-1}_{0,i\omega_n+\mu}
+			V^\dagger &-\Gamma^{-1}_{0,i\omega_n+\mu}
 	\end{pmatrix}
 	\begin{pmatrix}
 		\psi_n \\ \phi_n
@@ -61,9 +61,9 @@ where $\omega_n$ are the fermionic Matsubara frequencies, $\mu$ is the chemical 
 Exponentiating $-S$ and integrating over all the Grassmann fields yields the partition function
 
 $$\mathcal{Z} = \prod_{\omega_n} \det \left[\beta\begin{pmatrix}
-	-G^{-1}_{i\omega_n+\mu}	& V^\dagger
+	-G^{-1}_{i\omega_n+\mu}	& V
 		\\
-		V &-\Gamma^{-1}_{0,i\omega_n+\mu}
+		V^\dagger &-\Gamma^{-1}_{0,i\omega_n+\mu}
 \end{pmatrix}\right]\,,$$
 
 where $\beta$ is $1 / (k_B T)$.
@@ -217,3 +217,57 @@ $$\tilde{\Lambda}_z =\left(1 - \tilde{G}_{0,z}\tilde{\Delta}\right)^{-1}\tilde{G
 
 
 ## Occupation Number
+
+## Adding Spin Index
+To include spin effects, we consider a similar formalism as above, with an additional spin term $J$ in the Hamiltonian.
+
+$$\hat{\mathcal{H}} = 	\mathbf{c}^\dagger(H_0 + \Delta + J)\mathbf{c}
+	+ 	\mathbf{g}^\dagger h\mathbf{g}
+	+ \mathbf{g}^\dagger V \mathbf{c} +  \mathbf{c}^\dagger V^\dagger \mathbf{g} + H_{spin}
+	\,.$$
+We define $\Upsilon = \Delta + J$. The creation and annihilation operator vectors now include the spin index and we now write the pristine graphene Hamiltonian using the tight-binding formalism in momentum space as
+
+$$\hat{H}_0 = \sum_\mathbf{q} \begin{pmatrix} a_{\uparrow, \mathbf{q}}^\dagger & b_{\uparrow, \mathbf{q}}^\dagger & a_{\downarrow, \mathbf{q}}^\dagger & b_{\downarrow, \mathbf{q}}^\dagger \end{pmatrix} \begin{pmatrix} 0 & -t f_\mathbf{q} & 0 & 0 \\ -t f^*_\mathbf{q} & 0 & 0 & 0 \\ 0 & 0 & 0 & -t f_{\mathbf{q}} \\ 0 & 0 -t f^*_{\mathbf{q}} \end{pmatrix} \begin{pmatrix} a_{\uparrow, \mathbf{q}} \\ b_{\uparrow, \mathbf{q}} \\ a_{\downarrow, \mathbf{q}} \\ b_{\downarrow, \mathbf{q}} \end{pmatrix} = \sum_\mathbf{q}c^\dagger_\mathbf{q}H_\mathbf{q} c_\mathbf{q}\,,$$
+
+where all the terms are the same as before and $a_{\uparrow, \mathbf{q}}, a_{\downarrow, \mathbf{q}}$ and $b_{\uparrow, \mathbf{q}}, b_{\downarrow, \mathbf{q}}$ correspond to the different spins of the $p_z$ orbitals in the two sublattices. We can think of $J$ as an extension of the perturbation term $\Delta$. $\Delta$ allows for coupling between orbitals of the same spin; with the consideration of the spin index, $\Delta$ takes on a block-diagonal form. In the term $\Upsilon$, $J$ now accounts for the off-diagonal terms that allow coupling between orbitals of different spins.
+
+Since the inclusion of the spin index does not change the form of the imaginary-time action, it follows that the partition function and by extension, the form of the full Green's functions will be almost identical.
+
+### Graphene Green's Function
+
+The full real-space graphene Green's function is given by $\mathcal{G}_z^{-1} = G_{0,z}^{-1} - \Upsilon - V \Gamma_{0,z}V^\dagger$. Inverting the expression gives us
+
+$$\mathcal{G}_z = [G_{0,z}^{-1} - (\Upsilon + V \Gamma_{0,z} V^\dagger)]^{-1}
+= G_{0,z} + G_{0,z} [(\Upsilon + V \Gamma_{0,z} V^\dagger)^{-1} - G_{0,z}]^{-1} G_{0,z} \\
+= G_{0,z} + G_{0,z} [(\Delta + J + V \Gamma_{0,z} V^\dagger)^{-1} - G_{0,z}]^{-1} G_{0,z}\,.$$
+
+### Impurity Green's Function
+
+The full impurity Green's function, denoted by $\Gamma_z$, is given by
+
+$$\Gamma_z = [\Gamma_{0,z}^{-1} - V^\dagger (z - H_0 - \Upsilon)^{-1} V]^{-1}
+= \Gamma_{0,z} + \Gamma_{0,z} V^\dagger (\Lambda_z^{-1} - V \Gamma_{0,z} V^\dagger)^{-1} V \Gamma_{0,z}\,,$$
+
+where, similar to the previous formalism,
+
+$$\Lambda_z = (z - H_0 - \Upsilon)^{-1} = [1 - (z - H_0)^{-1} \Upsilon]^{-1} (z - H_0)^{-1} \\
+= [1 - G_{0,z}(\Delta + J)]^{-1} G_{0,z} \, .$$
+
+As discussed above, we only need to include atoms that are perturbed in the $\Lambda_z$ and/or the $V$ matrices. This yields
+
+$$\Gamma_z = \Gamma_{0,z} + \Gamma_{0,z} \tilde{V}^\dagger (\tilde{\Lambda}_z^{-1} - \tilde{V} \Gamma_{0,z} \tilde{V}^\dagger)^{-1} \tilde{V} \Gamma_{0,z}\,,$$
+
+where
+$$\Lambda_z = [1 - \tilde{G}_{0,z}(\tilde{\Delta} + \tilde{J})]^{-1} \tilde{G}_{0,z} \, .$$
+
+The term $\tilde{J}$ is a diagonal matrix composed of $\hat{J}_j$, where the index $j$ runs over perturbed atoms.
+
+To work out the form of $\hat{J}_j$, we use the Ruderman–Kittel–Kasuya–Yosida (RKKY) formalism to obtain
+
+$$\hat{J}_j = J_j \times \begin{pmatrix}
+S_{jz} & 0 & S_{j+} & 0 \\
+0 & S_{jz} & 0 & S_{j+} \\
+S_{j-} & 0  & -S_{jz} & 0 \\
+0 & S_{j-} & 0 & -S_{jz} \end{pmatrix} \, ,$$
+
+where $S_{j\pm} = S_{jx} \pm i S_{jy}$.
