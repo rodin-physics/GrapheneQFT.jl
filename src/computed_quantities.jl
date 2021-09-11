@@ -24,12 +24,14 @@ function δG_R(
     # for every pair of coordinates
     prop_mat = propagator_matrix(z, s.scattering_atoms)
     if length(s.imps) == 0
-        D = s.Δ * inv(Diagonal(ones(length(s.scattering_atoms))) .- prop_mat * s.Δ)
+        D = s.Δ * inv(Diagonal(ones(2*length(s.scattering_atoms))) .- prop_mat * s.Δ)
     else
-        Γ0 = 1 ./ (z .- s.imps) |> Diagonal
+        Γ0_init = 1 ./ (z .- s.imps) |> Diagonal
+        Γ0_block = [Γ0_init[ii,ii]*I(2) for ii in 1:length(s.imps)]
+        Γ0 = hvcat(size(Γ0_block,1), Γ0_block...)
         D =
             (s.Δ .+ s.V * Γ0 * adjoint(s.V)) * inv(
-                Diagonal(ones(length(s.scattering_atoms))) .-
+                Diagonal(ones(2*length(s.scattering_atoms))) .-
                 prop_mat * (s.Δ .+ s.V * Γ0 * adjoint(s.V)),
             )
     end

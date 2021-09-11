@@ -1,5 +1,6 @@
 # Nearest-neighbor hopping parameter
 const NN_hopping = 2.8
+const P = 0.065
 
 # Graphene basis vectors
 # Distance between neighboring carbon atoms
@@ -101,7 +102,8 @@ end
 # When computing Ω, occasionally the integrand becomes small enough to give NaN
 # The integrand helper functions help to catch these instances
 @inline function Ω_Integrand(z, u, v, x::Float64)
-    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
+    NNwOverlap = NN_hopping + z * P
+    W = ((z / NNwOverlap)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
     res =
         exp(1.0im * (u - v) * x) / cos(x) * ((W - √(W - 1) * √(W + 1))^abs.(u + v)) /
         (√(W - 1) * √(W + 1))
@@ -109,8 +111,9 @@ end
 end
 
 @inline function Ω(z, u, v)
+    NNwOverlap = NN_hopping + z * P
     return ((quadgk(
-        x -> 2 * Ω_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
+        x -> Ω_Integrand(z, u, v, x) / (8.0 * π * NNwOverlap^2),
         0.0,
         π / 3,
         2 * π / 3,
@@ -121,7 +124,8 @@ end
 end
 
 @inline function Ωp_Integrand(z, u, v, x::Float64)
-    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
+    NNwOverlap = NN_hopping + z * P
+    W = ((z / NNwOverlap)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
     res =
         2 * exp(1.0im * (u - v) * x) * ((W - √(W - 1) * √(W + 1))^abs.(u + v + 1)) /
         (√(W - 1) * √(W + 1))
@@ -129,8 +133,9 @@ end
 end
 
 @inline function Ωp(z, u, v)
+    NNwOverlap = NN_hopping + z * P
     return ((quadgk(
-        x -> 2 * Ωp_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
+        x -> Ωp_Integrand(z, u, v, x) / (8.0 * π * NNwOverlap^2),
         0.0,
         π / 3,
         2 * π / 3,
@@ -141,7 +146,8 @@ end
 end
 
 @inline function Ωn_Integrand(z, u, v, x::Float64)
-    W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
+    NNwOverlap = NN_hopping + z * P
+    W = ((z / NNwOverlap)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
     res =
         2 * exp(1.0im * (u - v) * x) * ((W - √(W - 1) * √(W + 1))^abs.(u + v - 1)) /
         (√(W - 1) * √(W + 1))
@@ -149,8 +155,9 @@ end
 end
 
 @inline function Ωn(z, u, v)
+    NNwOverlap = NN_hopping + z * P
     return ((quadgk(
-        x -> 2 * Ωn_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
+        x -> Ωn_Integrand(z, u, v, x) / (8.0 * π * NNwOverlap^2),
         0.0,
         π / 3,
         2 * π / 3,
@@ -163,13 +170,14 @@ end
 # The propagator function picks out the correct element of the Ξ matrix based
 # on the sublattices of the graphene coordinates.
 function graphene_propagator(a_l::GrapheneCoord, a_m::GrapheneCoord, z)
+    NNwOverlap = NN_hopping + z * P
     u = a_l.u - a_m.u
     v = a_l.v - a_m.v
     @match [a_l.sublattice, a_m.sublattice] begin
         [A, A] => z * Ω(z, u, v)
         [B, B] => z * Ω(z, u, v)
-        [A, B] => -NN_hopping * (Ω(z, u, v) + Ωp(z, u, v))
-        [B, A] => -NN_hopping * (Ω(z, u, v) + Ωn(z, u, v))
+        [A, B] => -NNwOverlap * (Ω(z, u, v) + Ωp(z, u, v))
+        [B, A] => -NNwOverlap * (Ω(z, u, v) + Ωn(z, u, v))
     end
 end
 
@@ -193,6 +201,7 @@ end
 function propagator_matrix(z, Coords::Vector{GrapheneCoord})
     precomputed =
         Dict{Tuple{Int,Int,GrapheneQFT.Sublattice,GrapheneQFT.Sublattice},ComplexF64}()
+
     len_coords = length(Coords)
     out = zeros(ComplexF64, len_coords, len_coords)
     for ii = 1:len_coords
@@ -215,5 +224,8 @@ function propagator_matrix(z, Coords::Vector{GrapheneCoord})
             end
         end
     end
-    return out
+
+    final = [out[ii,jj]*I(2) for ii in 1:len_coords, jj in 1:len_coords]
+
+    return hvcat(size(final,1), final...)
 end
