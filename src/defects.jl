@@ -5,11 +5,12 @@ include("pristine_graphene.jl")
 
 An impurity state of energy `ϵ` (in eV) coupled to the graphene system. The
 tuples in the `coupling` field contain all the coupling energies (in eV) and the
- corresponding [`GrapheneCoord`](@ref)'s.
+ corresponding [`GrapheneCoord`](@ref)'s. The tuples in the `spin` field contains the spin values in x-, y-, and z-directions, in that order.
 """
 struct ImpurityState
     ϵ::Float64
     coupling::Vector{Tuple{Float64,GrapheneCoord}}
+    spin::Tuple{Float64, Float64, Float64}
 end
 
 """
@@ -34,6 +35,7 @@ const nopert = Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}[]
         T::Float64,
         Δ::Array{ComplexF64,2},
         V::Array{Float64,2},
+        J::Array{ComplexF64,2},
         scattering_atoms::Vector{GrapheneCoord},
         imps::Vector{Float64},
     )
@@ -47,6 +49,7 @@ struct GrapheneSystem
     T::Float64                              # Temperature
     Δ::Array{ComplexF64,2}                  # Δ matrix
     V::Array{Float64,2}                     # V Matrix
+    J::Array{ComplexF64,2}                  # J Matrix
     scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
     imps::Vector{Float64}                   # Impurity energies
 end
@@ -109,21 +112,60 @@ function mkGrapheneSystem(
     ]
     # Combine the two sets of coordinates and keep only unique entries
     all_atoms = vcat(perturbed_atoms, coupled_atoms) |> unique |> sort
+    n_atoms = length(all_atoms)
+
     # Assemble Δ
     Δ = [get!(pert_dict, (x, y), 0.0 + 0.0im) for x in all_atoms, y in all_atoms]
+
+    if !isempty(Δ)
+        Δ_ = spin_expand(Δ)
+    else
+        Δ_ = Array{GrapheneCoord}(undef, 0, 0)
+    end
+
     # Assemble V
     V_array = [
-        [
-            sum([((atom == c[2]) * c[1]) for c in imp.coupling])::Float64 for atom in all_atoms
-        ] for imp in imps
+            [(sum([((atom == c[2]) * c[1]) for c in imp.coupling])::Float64) for atom in all_atoms]
+            for imp in imps
     ]
+
     if !isempty(V_array)
-        V = reduce(hcat, V_array)
+        V = spin_expand(reduce(hcat, V_array))
     else
         V = Array{GrapheneCoord}(undef, 0, 0)
     end
+
+    # Assemble J
+    if !all(map(x -> all(iszero.(x)), map(x -> x.spin, imps)))
+        j_x=fill(0.0, n_atoms,1)
+        j_y=fill(0.0, n_atoms,1)
+        j_z=fill(0.0, n_atoms,1)
+        
+        for k = 1:n_atoms
+            loc = all_atoms[k]
+            for i=1:length(imps)
+                coupling_array = map(x -> x[2], imps[i].coupling)
+                j_x[k] += (sum(map(x-> loc==x, coupling_array)) .* (imps[i].spin[1]))
+                j_y[k] += (sum(map(x-> loc==x, coupling_array)) .* (imps[i].spin[2]))
+                j_z[k] += (sum(map(x-> loc==x, coupling_array)) .* (imps[i].spin[3]))
+            end
+        end
+
+        J = fill(0.0+1im*0.0, 2*length(all_atoms), 2*length(all_atoms))
+        for i = 1:n_atoms
+            J[2*i-1,2*i-1]=j_z[i]
+            J[2*i,2*i]= -j_z[i]
+            J[2*i-1,2*i]=j_x[i]+1im*j_y[i]
+            J[2*i,2*i-1]=j_x[i]-1im*j_y[i]
+        end
+    else
+        J =  Array{GrapheneCoord}(undef, 0, 0)
+    end
+
+    # Get impurity energies
     imp_energies = [x.ϵ for x in imps]
-    return GrapheneSystem(μ, T, Δ, V, all_atoms, imp_energies)
+
+    return GrapheneSystem(μ, T, Δ_, V, J, all_atoms, imp_energies)
 end
 
 """
