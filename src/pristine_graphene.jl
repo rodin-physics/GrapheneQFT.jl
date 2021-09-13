@@ -100,10 +100,13 @@ end
 
 # Helper function to expand dimensions to include spin effects
 function spin_expand(array)
-    array_init = [array[ii,jj]*I(2) for ii in 1:size(array,1), jj in 1:size(array,2)]
-    final = hvcat(size(array_init,1), array_init...)
-    return size(final,1) == size(final, 2) ? final : permutedims(final)
-
+    if isempty(array)
+        return Array{GrapheneCoord}(undef, 0, 0)
+    else
+        array_init = [array[ii,jj]*I(2) for ii in 1:size(array,1), jj in 1:size(array,2)]
+        final = hvcat(size(array_init,1), array_init...)
+        return permutedims(final)
+    end
 end
 
 ## Propagator

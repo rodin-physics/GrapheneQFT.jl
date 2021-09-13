@@ -19,6 +19,7 @@ export GrapheneCoord,
     graphene_neighbors,
     graphene_multiple_neighbors,
     crystal_to_cartesian,
+    spin_expand,
     Coupling,
     ImpurityState,
     noimps,
@@ -42,7 +43,7 @@ end # module
 
 
 # Example:
-# 
+#
 # Pick a few graphene coordinates:
 # ```
 # a1 = graphene_A(0, 17)

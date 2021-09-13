@@ -31,11 +31,6 @@ function δG_R(
         Γ0_init = 1 ./ (z .- s.imps) |> Diagonal
         Γ0 = spin_expand(Γ0_init)
 
-        # println("Delta is ", size(s.Δ)[1], " by ", size(s.Δ)[2])
-        # println("V is ", size(s.V)[1], " by ", size(s.V)[2])
-        # println("Gamma is ", size(Γ0)[1], " by ", size(Γ0)[2])
-        # println("PropMat is ", size(prop_mat)[1], " by ", size(prop_mat)[2])
-
         D =
             (s.Δ .+ s.J .+ s.V * Γ0 * adjoint(s.V)) * inv(
                 Diagonal(ones(2*scatter_len)) .-
