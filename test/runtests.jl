@@ -164,7 +164,7 @@ p3 = (a3, a1, c3)
 
     @test_throws ErrorException δρ_R_graphene(a1, 5, my_system)
 
-    @test δρ_R_graphene(a3, -1, my_system) + δρ_R_graphene(a3, 1, my_system) == δρ_R_graphene(a3, 0, my_system)
+    @test δρ_R_graphene(a3, -1, my_system) + δρ_R_graphene(a3, 1, my_system) ≈ δρ_R_graphene(a3, 0, my_system)
 
 end
 
