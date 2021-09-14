@@ -22,13 +22,18 @@ function δG_R(
 )
     imps_len = length(s.imps)
     scatter_len = length(s.scattering_atoms)
+
     # Calculate the scattering matrix D which is the same
     # for every pair of coordinates
     prop_mat = propagator_matrix(z, s.scattering_atoms)
-    if imps_len == 0
+    if scatter_len == 0
+        return repeat([ComplexF64.([0 0;0 0])], length(pairs))
+
+    elseif imps_len == 0
         D = s.Δ * inv(Diagonal(ones(2*scatter_len)) .- prop_mat * s.Δ)
+
     else
-        Γ0_init = 1 ./ (z .- s.imps) |> Diagonal
+        Γ0_init = 1 ./ (z .- s.imps) |> Diagonal |> Array
         Γ0 = spin_expand(Γ0_init)
 
         D =
@@ -73,7 +78,7 @@ function G_R(
     pairs::Vector{Tuple{GrapheneCoord,GrapheneCoord}},
     s::GrapheneSystem,
 )
-    res = [spin_expand(graphene_propagator(p[1], p[2], z)) for p in pairs] + δG_R(z, pairs, s)
+    res = [spin_expand([graphene_propagator(p[1], p[2], z)]) for p in pairs] + δG_R(z, pairs, s)
     return res
 end
 
@@ -91,7 +96,7 @@ function δΓ(z::ComplexF64, s::GrapheneSystem)
     if isempty(s.imps)
         error("No impurity states in the system")
     else
-        Γ0 = 1 ./ (z .- s.imps) |> Diagonal |> spin_expand
+        Γ0 = 1 ./ (z .- s.imps) |> Diagonal |> Array |> spin_expand
         prop_mat = propagator_matrix(z, s.scattering_atoms)
         Λ =
             prop_mat +
@@ -121,7 +126,7 @@ interaction with graphene.
 * `s`: [`GrapheneSystem`](@ref) for which `Γ` is calculated
 """
 function Γ(z::ComplexF64, s::GrapheneSystem)
-    Γ0 = 1 ./ (z .- s.imps) |> Diagonal |> spin_expand
+    Γ0 = 1 ./ (z .- s.imps) |> Diagonal |> Array |> spin_expand
     res = Γ0 + δΓ(z, s)
     return res
 end
@@ -129,7 +134,7 @@ end
 """
     δρ_R_graphene(loc::GrapheneCoord, spin::Int64, s::GrapheneSystem)
 
-The correction to charge density in graphene induced by impurities at a given `GrapheneCoord`. A `spin` value of 0 returns the total charge density correction, while 1 and -1 return the spin-up and spin-down charge density correction, respectively.
+The correction to charge density in graphene induced by defects at a given `GrapheneCoord`. A `spin` value of 0 returns the total charge density correction, while 1 and -1 return the spin-up and spin-down charge density correction, respectively.
 
 # Arguments
 * `loc`: [`GrapheneCoord`](@ref) for which `δρ_R_graphene` is calculated
@@ -150,7 +155,7 @@ function δρ_R_graphene(loc::GrapheneCoord, spin::Int64, s::GrapheneSystem)
 
     if s.T == 0
         res = quadgk(
-            x -> real(G_R(s.μ + 1im * x, [(loc, loc)], s)[1]),
+            x -> real(δG_R(s.μ + 1im * x, [(loc, loc)], s)[1]),
             0,
             Inf,
             rtol = 1e-2,

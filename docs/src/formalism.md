@@ -112,7 +112,7 @@ $$G_{0,z,2\times 2}^{jk} = \sum_{lm}\Theta_{jl}\left[\left(z -  H_0^\mathbf{Q} \
 z& - tf_\mathbf{q}
 \\
 - tf_\mathbf{q}^* & z
-\end{pmatrix}\frac{1}{z^2 - t^2 \left|f_\mathbf{q}\right|} e^{i\mathbf{R}_{kj}\cdot\mathbf{q}}= G_{0,z}\left(\mathbf{R}_{kj}\right)\,.$$
+\end{pmatrix}\frac{1}{z^2 - t^2 \left|f_\mathbf{q}\right|^2} e^{i\mathbf{R}_{kj}\cdot\mathbf{q}}= G_{0,z}\left(\mathbf{R}_{kj}\right)\,.$$
 
 To compute $G_{0,z}(\mathbf{R})$, we first introduce
 
@@ -217,3 +217,58 @@ $$\tilde{\Lambda}_z =\left(1 - \tilde{G}_{0,z}\tilde{\Delta}\right)^{-1}\tilde{G
 
 
 ## Occupation Number
+
+
+## Adding Spin Index
+To include spin effects, we consider a similar formalism as above, with an additional spin term $J$ in the Hamiltonian.
+
+$$\hat{\mathcal{H}} = 	\mathbf{c}^\dagger(H_0 + \Delta + J)\mathbf{c}
+	+ 	\mathbf{g}^\dagger h\mathbf{g}
+	+ \mathbf{g}^\dagger V \mathbf{c} +  \mathbf{c}^\dagger V^\dagger \mathbf{g} + H_{spin}
+	\,.$$
+We define $\Upsilon = \Delta + J$. The creation and annihilation operator vectors now include the spin index and we now write the pristine graphene Hamiltonian using the tight-binding formalism in momentum space as
+
+$$\hat{H}_0 = \sum_\mathbf{q} \begin{pmatrix} a_{\uparrow, \mathbf{q}}^\dagger & b_{\uparrow, \mathbf{q}}^\dagger & a_{\downarrow, \mathbf{q}}^\dagger & b_{\downarrow, \mathbf{q}}^\dagger \end{pmatrix} \begin{pmatrix} 0 & -t f_\mathbf{q} & 0 & 0 \\ -t f^*_\mathbf{q} & 0 & 0 & 0 \\ 0 & 0 & 0 & -t f_{\mathbf{q}} \\ 0 & 0 -t f^*_{\mathbf{q}} \end{pmatrix} \begin{pmatrix} a_{\uparrow, \mathbf{q}} \\ b_{\uparrow, \mathbf{q}} \\ a_{\downarrow, \mathbf{q}} \\ b_{\downarrow, \mathbf{q}} \end{pmatrix} = \sum_\mathbf{q}c^\dagger_\mathbf{q}H_\mathbf{q} c_\mathbf{q}\,,$$
+
+where all the terms are the same as before and $a_{\uparrow, \mathbf{q}}, a_{\downarrow, \mathbf{q}}$ and $b_{\uparrow, \mathbf{q}}, b_{\downarrow, \mathbf{q}}$ correspond to the different spins of the $p_z$ orbitals in the two sublattices. We can think of $J$ as an extension of the perturbation term $\Delta$. $\Delta$ allows for coupling between orbitals of the same spin; with the consideration of the spin index, $\Delta$ takes on a block-diagonal form. In the term $\Upsilon$, $J$ now accounts for the off-diagonal terms that allow coupling between orbitals of different spins.
+
+Since the inclusion of the spin index does not change the form of the imaginary-time action, it follows that the partition function and by extension, the form of the full Green's functions will be almost identical.
+
+### Graphene Green's Function
+
+The full real-space graphene Green's function is given by $\mathcal{G}_z^{-1} = G_{0,z}^{-1} - \Upsilon - V \Gamma_{0,z}V^\dagger$. Inverting the expression gives us
+
+$$\mathcal{G}_z = [G_{0,z}^{-1} - (\Upsilon + V \Gamma_{0,z} V^\dagger)]^{-1}
+= G_{0,z} + G_{0,z} [(\Upsilon + V \Gamma_{0,z} V^\dagger)^{-1} - G_{0,z}]^{-1} G_{0,z} \\
+= G_{0,z} + G_{0,z} [(\Delta + J + V \Gamma_{0,z} V^\dagger)^{-1} - G_{0,z}]^{-1} G_{0,z}\,.$$
+
+### Impurity Green's Function
+
+The full impurity Green's function, denoted by $\Gamma_z$, is given by
+
+$$\Gamma_z = [\Gamma_{0,z}^{-1} - V^\dagger (z - H_0 - \Upsilon)^{-1} V]^{-1}
+= \Gamma_{0,z} + \Gamma_{0,z} V^\dagger (\Lambda_z^{-1} - V \Gamma_{0,z} V^\dagger)^{-1} V \Gamma_{0,z}\,,$$
+
+where, similar to the previous formalism,
+
+$$\Lambda_z = (z - H_0 - \Upsilon)^{-1} = [1 - (z - H_0)^{-1} \Upsilon]^{-1} (z - H_0)^{-1} \\
+= [1 - G_{0,z}(\Delta + J)]^{-1} G_{0,z} \, .$$
+
+As discussed above, we only need to include atoms that are perturbed in the $\Lambda_z$ and/or the $V$ matrices. This yields
+
+$$\Gamma_z = \Gamma_{0,z} + \Gamma_{0,z} \tilde{V}^\dagger (\tilde{\Lambda}_z^{-1} - \tilde{V} \Gamma_{0,z} \tilde{V}^\dagger)^{-1} \tilde{V} \Gamma_{0,z}\,,$$
+
+where
+$$\Lambda_z = [1 - \tilde{G}_{0,z}(\tilde{\Delta} + \tilde{J})]^{-1} \tilde{G}_{0,z} \, .$$
+
+The term $\tilde{J}$ is a diagonal matrix composed of $\hat{J}_j$, where the index $j$ runs over perturbed atoms.
+
+To work out the form of $\hat{J}_j$, we use the Ruderman–Kittel–Kasuya–Yosida (RKKY) formalism to obtain
+
+$$\hat{J}_j = J_j \times \begin{pmatrix}
+S_{jz} & 0 & S_{j+} & 0 \\
+0 & S_{jz} & 0 & S_{j+} \\
+S_{j-} & 0  & -S_{jz} & 0 \\
+0 & S_{j-} & 0 & -S_{jz} \end{pmatrix} \, ,$$
+
+where $S_{j\pm} = S_{jx} \pm i S_{jy}$.

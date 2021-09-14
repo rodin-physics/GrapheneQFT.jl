@@ -1,4 +1,4 @@
-using Test, QuadGK, GrapheneQFT, Cubature
+using Test, QuadGK, GrapheneQFT, Cubature, LinearAlgebra
 ## Testing pristine graphene
 a1 = GrapheneCoord(0, 17, A)
 a2 = GrapheneCoord(1, 1, A)
@@ -9,60 +9,72 @@ a5 = GrapheneCoord(0, 1, A)
 array1 = [1 2 3;4 5 6;7 8 9]
 array2 = [[1.0-1im 3.0+2.5im 5.2-1im], [2 4]]
 
-@test map(x -> GrapheneCoord(x.u, x.v, !x.sublattice), [a1, a2, a3, a4, a5]) == [
-    GrapheneCoord(0, 17, B),
-    GrapheneCoord(1, 1, B),
-    GrapheneCoord(3, -2, A),
-    GrapheneCoord(2, 7, B),
-    GrapheneCoord(0, 1, B),
-]
-
-@test isless(a2, a1) == true
-@test isless(a3, a1) == false
-@test isless(a2, a5) == false
-@test isless(a1, a5) == false
-
-@test sort(graphene_neighbors(a4)) ==
-      [GrapheneCoord(2, 7, B), GrapheneCoord(3, 7, B), GrapheneCoord(2, 8, B)]
-
-@test sort(graphene_neighbors(a3)) ==
-      [GrapheneCoord(3, -3, A), GrapheneCoord(2, -2, A), GrapheneCoord(3, -2, A)]
-
-@test crystal_to_cartesian(a1) == [
-    GrapheneQFT.graphene_d1[1] * 0 + GrapheneQFT.graphene_d2[1] * 17,
-    GrapheneQFT.graphene_d1[2] * 0 + GrapheneQFT.graphene_d2[2] * 17,
-]
-@test crystal_to_cartesian(a3) == [
-    GrapheneQFT.graphene_d1[1] * 3 + GrapheneQFT.graphene_d2[1] * (-2),
-    GrapheneQFT.graphene_d1[2] * 3 +
-    GrapheneQFT.graphene_d2[2] * (-2) +
-    GrapheneQFT.sublattice_shift,
-]
-
-@test spin_expand(array1) == [
-        1 0 2 0 3 0
-        0 1 0 2 0 3
-        4 0 5 0 6 0
-        0 4 0 5 0 6
-        7 0 8 0 9 0
-        0 7 0 8 0 9
-]
-
-@test map(spin_expand, array2) == [
-    [1.0-1im 0.0+0.0im 3.0+2.5im 0.0+0.0im 5.2-1im 0.0+0.0
-     0.0+0.0im 1.0-1im 0.0+0.0im 3.0+2.5im 0.0+0.0im 5.2-1im],
-    [2 0 4 0;
-     0 2 0 4]
-]
-
-## Testing defects
 r1 = rand(-20:20, 10)
 r2 = rand(-20:20, 10)
-@test map((x, y) -> GrapheneCoord(x, y, A), r1, r2) ==
-      map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, A), r1, r2)
-@test map((x, y) -> GrapheneCoord(x, y, B), r1, r2) ==
-      map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, B), r1, r2)
 
+@testset "Basic definitions" begin
+    @test map(x -> GrapheneCoord(x.u, x.v, !x.sublattice), [a1, a2, a3, a4, a5]) == [
+        GrapheneCoord(0, 17, B),
+        GrapheneCoord(1, 1, B),
+        GrapheneCoord(3, -2, A),
+        GrapheneCoord(2, 7, B),
+        GrapheneCoord(0, 1, B),
+    ]
+
+    @test map((x, y) -> GrapheneCoord(x, y, A), r1, r2) ==
+          map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, A), r1, r2)
+    @test map((x, y) -> GrapheneCoord(x, y, B), r1, r2) ==
+          map((x, y) -> GrapheneQFT.GrapheneCoord(x, y, B), r1, r2)
+
+    @test isless(a2, a1) == true
+    @test isless(a3, a1) == false
+    @test isless(a2, a5) == false
+    @test isless(a1, a5) == false
+
+end
+
+@testset "Helper functions" begin
+    @test sort(graphene_neighbors(a4)) ==
+          [GrapheneCoord(2, 7, B), GrapheneCoord(3, 7, B), GrapheneCoord(2, 8, B)]
+
+    @test sort(graphene_neighbors(a3)) ==
+          [GrapheneCoord(3, -3, A), GrapheneCoord(2, -2, A), GrapheneCoord(3, -2, A)]
+
+    @test vcat(a2, sort(graphene_neighbors(a2))) ==
+            sort(graphene_multiple_neighbors(a2, 1))
+
+
+    @test crystal_to_cartesian(a1) == [
+        GrapheneQFT.graphene_d1[1] * 0 + GrapheneQFT.graphene_d2[1] * 17,
+        GrapheneQFT.graphene_d1[2] * 0 + GrapheneQFT.graphene_d2[2] * 17,
+    ]
+    @test crystal_to_cartesian(a3) == [
+        GrapheneQFT.graphene_d1[1] * 3 + GrapheneQFT.graphene_d2[1] * (-2),
+        GrapheneQFT.graphene_d1[2] * 3 +
+        GrapheneQFT.graphene_d2[2] * (-2) +
+        GrapheneQFT.sublattice_shift,
+    ]
+
+    @test spin_expand(array1) == [
+            1 0 2 0 3 0
+            0 1 0 2 0 3
+            4 0 5 0 6 0
+            0 4 0 5 0 6
+            7 0 8 0 9 0
+            0 7 0 8 0 9
+    ]
+
+    @test map(spin_expand, array2) == [
+        [1.0-1im 0.0+0.0im 3.0+2.5im 0.0+0.0im 5.2-1im 0.0+0.0im
+         0.0+0.0im 1.0-1im 0.0+0.0im 3.0+2.5im 0.0+0.0im 5.2-1im],
+        [2 0 4 0;
+         0 2 0 4]
+    ]
+
+    @test spin_expand([]) == Array{GrapheneCoord,2}(undef,0,0)
+end
+
+## Testing defects
 ϵ1 = 1.7
 ϵ2 = -0.2
 
@@ -85,95 +97,156 @@ p1 = (a1, a1, c1)
 p2 = (a2, a1, c2)
 p3 = (a3, a1, c3)
 
+@testset "Impurities and perturbations present" begin
+    rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 5
+    my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], [p1, p2, p3])
 
-my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], [p1, p2, p3])
+    scattering_pairs =
+        [(x, y) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
 
-@test my_system.imps == [ϵ1, ϵ2]
-@test my_system.scattering_atoms == [a5, a2, a4, a1, a3]
+    scattering_pairs_Reverse =
+        [(y, x) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
 
-@test my_system.Δ == [
-    0 0 0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 c2 0 0 0
-    0 0 0 0 0 0 0 c2 0 0
-    0 0 0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0 0 0
-    0 0 conj(c2) 0 0 0 c1 0 c3 0
-    0 0 0 conj(c2) 0 0 0 c1 0 c3
-    0 0 0 0 0 0 c3 0 0 0
-    0 0 0 0 0 0 0 c3 0 0
-]
-@test my_system.V == [
-    0 0 V3 0
-    0 0 0 V3
-    0 0 0 0
-    0 0 0 0
-    V1 0 0 0
-    0 V1 0 0
-    0 0 0 0
-    0 0 0 0
-    V2 0 0 0
-    0 V2 0 0
-]
+    @test my_system.imps == [ϵ1, ϵ2]
+    @test my_system.scattering_atoms == [a5, a2, a4, a1, a3]
 
-rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 5
-scattering_pairs =
-    [(x, y) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
+    @test my_system.Δ == [
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 c2 0 0 0
+        0 0 0 0 0 0 0 c2 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 conj(c2) 0 0 0 c1 0 c3 0
+        0 0 0 conj(c2) 0 0 0 c1 0 c3
+        0 0 0 0 0 0 c3 0 0 0
+        0 0 0 0 0 0 0 c3 0 0
+    ]
+    @test my_system.V == [
+        0 0 V3 0
+        0 0 0 V3
+        0 0 0 0
+        0 0 0 0
+        V1 0 0 0
+        0 V1 0 0
+        0 0 0 0
+        0 0 0 0
+        V2 0 0 0
+        0 V2 0 0
+    ]
 
-scattering_pairs_Reverse =
-    [(y, x) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
+    @test my_system.J == [
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 1.0 1.0+0.3im 0 0 0 0
+        0 0 0 0 1.0-0.3im -1.0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 1.0 1.0+0.3im
+        0 0 0 0 0 0 0 0 1.0-0.3im -1.0
+    ]
 
-@test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
-      [x[1,1] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+    @test Γ(rand_num, my_system) - (1 ./ (rand_num .- my_system.imps) |> Diagonal |> Array |> spin_expand) ≈ δΓ(rand_num, my_system)
 
-@test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
-        [x[2,2] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+    @test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
+          [x[1,1] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
 
-@test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
-        [x[1,1] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+    @test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
+            [x[2,2] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
 
-@test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
-        [x[2,2] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+    @test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
+            [x[1,1] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
 
-my_system = mkGrapheneSystem(0.0, 0.0, noimps, [p1, p2, p3])
+    @test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
+            [x[2,2] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
 
-@test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
-      [x[1,1] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+    @test_throws ErrorException δρ_R_graphene(a1, 5, my_system)
 
-@test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
-        [x[2,2] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+    @test δρ_R_graphene(a3, -1, my_system) + δρ_R_graphene(a3, 1, my_system) == δρ_R_graphene(a3, 0, my_system)
 
-@test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
-        [x[1,1] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+end
 
-@test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
-        [x[2,2] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+@testset "Only perturbations present" begin
+    rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 5
+    my_system = mkGrapheneSystem(0.0, 0.0, noimps, [p1, p2, p3])
 
-@test_throws ErrorException δΓ(rand_num, my_system)
+    scattering_pairs =
+        [(x, y) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
 
-my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], nopert)
+    scattering_pairs_Reverse =
+        [(y, x) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
 
-@test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
-      [x[1,1] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+    @test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
+          [x[1,1] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
 
-@test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
-        [x[2,2] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+    @test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
+            [x[2,2] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
 
-@test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
-        [x[1,1] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+    @test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
+            [x[1,1] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
 
-@test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
-        [x[2,2] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+    @test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
+            [x[2,2] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+
+    @test_throws ErrorException δΓ(rand_num, my_system)
+end
+
+@testset "Only impurities present" begin
+    rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 5
+    my_system = mkGrapheneSystem(0.0, 0.0, [imp1, imp2], nopert)
+
+    scattering_pairs =
+        [(x, y) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
+
+    scattering_pairs_Reverse =
+        [(y, x) for x in my_system.scattering_atoms, y in my_system.scattering_atoms] |> vec
+
+    @test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
+          [x[1,1] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+
+    @test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> real] ≈
+            [x[2,2] for x in G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> real]
+
+    @test [x[1,1] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
+            [x[1,1] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+
+    @test [x[2,2] for x in G_R(rand_num, scattering_pairs, my_system) |> imag] ≈
+            [x[2,2] for x in -G_R(conj.(rand_num), scattering_pairs_Reverse, my_system) |> imag]
+end
+
+@testset "No defects present" begin
+    my_system = mkGrapheneSystem(0.0, 0.0, noimps, nopert)
+
+    @test my_system.Δ == Array{GrapheneCoord}(undef, 0, 0)
+
+    @test δρ_R_graphene(a1, 0, my_system) == 0.0
+    @test δρ_R_graphene(a2, 1, my_system) == 0.0
+    @test δρ_R_graphene(a3, -1, my_system) == 0.0
+
+end
+
+@testset "Finite temperature" begin
+    my_system = mkGrapheneSystem(0.0, 50.0, [imp1, imp2], [p1,p2,p3])
+
+    @test_throws ErrorException δρ_R_graphene(a2, 0, my_system)
+end
+
+
 
 ## Testing orbitals
 
-@test abs(
-    hcubature(r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]), [0, 0], [40, π])[1] -
-    1,
-) < 1e-6
+@testset "Testing orbitals" begin
+    R_rand = 40 * rand()
+    τ_rand = π * rand()
 
-R_rand = 40 * rand()
-τ_rand = π * rand()
-exact_coulomb = coulomb_potential_pz(R_rand, τ_rand)[1]
-@test abs(coulomb_potential_pz_interp(R_rand, τ_rand) - exact_coulomb) / exact_coulomb <
-      1e-2
+    @test abs(
+        hcubature(r -> 2 * π * Ψ_pz(r[1], r[2]) .^ 2 * r[1]^2 * sin(r[2]), [0, 0], [40, π])[1] -
+        1,
+    ) < 1e-6
+
+    exact_coulomb = coulomb_potential_pz(R_rand, τ_rand)[1]
+    @test abs(coulomb_potential_pz_interp(R_rand, τ_rand) - exact_coulomb) / exact_coulomb <
+          1e-2
+end

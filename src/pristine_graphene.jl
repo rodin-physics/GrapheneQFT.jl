@@ -99,7 +99,7 @@ end
 
 
 # Helper function to expand dimensions to include spin effects
-function spin_expand(array)
+function spin_expand(array::Array)
     if isempty(array)
         return Array{GrapheneCoord}(undef, 0, 0)
     else

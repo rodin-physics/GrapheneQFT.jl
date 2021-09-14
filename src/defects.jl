@@ -73,7 +73,7 @@ Construct [`GrapheneSystem`](@ref).
 When supplying `pert`, ensure that each coordinate pair appears only once as
 repeated pairs with different couplings will cause eariler values to be
 overwritten. The order of the coordinates does not matter. A tuple with the same
-coordinate given twice creates and on-site potential for the coordinate.
+coordinate given twice creates an on-site potential for the coordinate.
 
 The function constructs a [`GrapheneSystem`](@ref) with the `Δ` and `V` matrix
 computed from `imps` and `pert`. In addition, a list of all
@@ -140,7 +140,7 @@ function mkGrapheneSystem(
         j_x=fill(0.0, n_atoms,1)
         j_y=fill(0.0, n_atoms,1)
         j_z=fill(0.0, n_atoms,1)
-        
+
         for k = 1:n_atoms
             loc = all_atoms[k]
             for i=1:length(imps)
