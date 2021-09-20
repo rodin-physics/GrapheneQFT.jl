@@ -134,17 +134,6 @@ end
     @test G_R(rand_num, scattering_pair, my_system) |> imag ≈
           -G_R(conj.(rand_num), scattering_pair_rev, my_system) |> imag
 
-    #
-    #     @test Γ(rand_num, my_system) - (
-    #         1 ./ (rand_num .- my_system.imps) |> Diagonal |> Array |> spin_expand
-    #     ) ≈ δΓ(rand_num, my_system)
-
-    #
-    #     @test_throws ErrorException δρ_R_graphene(a1, 5, my_system)
-    #
-    #     @test δρ_R_graphene(a3, -1, my_system) + δρ_R_graphene(a3, 1, my_system) ≈
-    #           δρ_R_graphene(a3, 0, my_system)
-    #
 end
 
 @testset "Only Impurities" begin
@@ -236,7 +225,6 @@ end
 
 end
 
-
 @testset "No defects present" begin
     rand_num = ((rand() - 1 / 2) + 1im * (rand() - 1 / 2)) * 5
     my_system = mkGrapheneSystem(0.0, 0.0, Vector{Defect}([]))
@@ -244,35 +232,6 @@ end
     @test my_system.Δ == Array{GrapheneCoord}(undef, 0, 0)
     scattering_pair = [(s1, s5), (s4, s2)]
     @test δG_R(rand_num, scattering_pair, my_system) ==
-          [0.0 + 1im 0.0 0.0 + 1im 0.0]
-
-
-    #
-    # @test δρ_R_graphene(a1, 0, my_system) == 0.0
-    # @test δρ_R_graphene(a2, 1, my_system) == 0.0
-    # @test δρ_R_graphene(a3, -1, my_system) == 0.0
+          [(0.0 + 0.0im), (0.0 + 0.0im)]
 
 end
-#
-# @testset "Finite temperature" begin
-#     my_system = mkGrapheneSystem(0.0, 50.0, [imp1, imp2], [p1, p2, p3])
-#
-#     @test_throws ErrorException δρ_R_graphene(a2, 0, my_system)
-# end
-
-
-# #
-# δG_R(1im + 2.0, [(s1,s2)], my_system)
-# # # δG_R(-1im + 2.0, [(s2,s1)], my_system)
-# # G_R(1im + 2.0, [(s1,s2)], my_system)
-# # 4
-# #
-# my_system.Δ
-# my_system.V
-# 1 ./ (1.2 .- repeat(my_system.imps, 2))
-generate_coverage(
-    "GrapheneQFT",
-    genhtml = true,
-    show_summary = true,
-    genxml = false,
-)

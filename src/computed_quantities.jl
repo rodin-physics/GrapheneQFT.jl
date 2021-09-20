@@ -27,7 +27,7 @@ function δG_R(
     # for every pair of coordinates
     prop_mat = propagator_matrix(z, s.scattering_states)
     if scatter_len == 0
-        return repeat([ComplexF64.([0 0; 0 0])], length(pairs))
+        return repeat([0.0 + 0.0im], length(pairs))
 
     elseif imps_len == 0
         D = s.Δ * inv(Diagonal(ones(scatter_len)) .- prop_mat * s.Δ)
@@ -55,7 +55,7 @@ function δG_R(
         ] |> permutedims for idx = 1:length(pairs)
     ]
 
-    res = [(PropVectorLs[ii] * D * PropVectorRs[ii])[1] for ii = 1:length(pairs)]
+    res = [(PropVectorLs[ii]*D*PropVectorRs[ii])[1] for ii = 1:length(pairs)]
     return res
 end
 
