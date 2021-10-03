@@ -99,11 +99,11 @@ function δΓ(z::ComplexF64, s::GrapheneSystem)
         Γ0 = 1 ./ (z .- repeat(s.imps, 2)) |> Diagonal |> Array
         prop_mat = propagator_matrix(z, s.scattering_states)
         Λ =
-            prop_mat +
+            prop_mat .+
             prop_mat *
             s.Δ *
             inv(
-                Diagonal(ones(2 * length(s.scattering_states))) -
+                Diagonal(ones(length(s.scattering_states))) .-
                 prop_mat * s.Δ,
             ) *
             prop_mat
@@ -112,7 +112,7 @@ function δΓ(z::ComplexF64, s::GrapheneSystem)
             adjoint(s.V) *
             Λ *
             inv(
-                Diagonal(ones(2 * length(s.scattering_states))) -
+                Diagonal(ones(length(s.scattering_states))) .-
                 s.V * Γ0 * adjoint(s.V) * Λ,
             ) *
             s.V *
@@ -132,8 +132,12 @@ interaction with graphene.
 * `s`: [`GrapheneSystem`](@ref) for which `Γ` is calculated
 """
 function Γ(z::ComplexF64, s::GrapheneSystem)
-    Γ0 = 1 ./ (z .- repeat(s.imps, 2)) |> Diagonal |> Array
-    res = Γ0 + δΓ(z, s)
+    if isempty(s.imps)
+        error("No impurity states in the system")
+    else
+        Γ0 = 1 ./ (z .- repeat(s.imps, 2)) |> Diagonal |> Array
+        res = Γ0 + δΓ(z, s)
+    end
     return res
 end
 
@@ -147,16 +151,16 @@ The correction to charge density in graphene induced by defects at a given
 * `state`: [`GrapheneState`](@ref) for which `δρ_R_graphene` is calculated
 * `s`: [`GrapheneSystem`](@ref) for which `δρ_R_graphene` is calculated
 """
-function δρ_R_graphene(loc::GrapheneCoord, spin::Int64, s::GrapheneSystem)
+function δρ_R_graphene(state::GrapheneState, s::GrapheneSystem)
     if s.T == 0
         res = quadgk(
-            x -> real(δG_R(s.μ + 1im * x, [(statestate, state)], s)[1]),
+            x -> real(δG_R(s.μ + 1im * x, [(state, state)], s)[1]),
             0,
             Inf,
             rtol = 1e-2,
         )
 
-        return ((res[1][1, 1] * a + res[1][2, 2] * b) / π)::Float64
+        return (res[1] / π)::Float64
     else
         error("Finite T given")
     end

@@ -134,6 +134,8 @@ end
     @test G_R(rand_num, scattering_pair, my_system) |> imag ≈
           -G_R(conj.(rand_num), scattering_pair_rev, my_system) |> imag
 
+    @test δG_R(rand_num, [(s1, s2), (s3, s4)], my_system) == G_R(rand_num, [(s1, s2), (s3, s4)], my_system)
+
 end
 
 @testset "Only Impurities" begin
@@ -174,6 +176,12 @@ end
           -G_R(conj.(rand_num), scattering_pair_rev, my_system) |> imag
 
     @test G_R(rand_num, [(s1, s2)], my_system)[1] ≈ 0
+
+    @test δΓ(rand_num, my_system) |> Diagonal ≈ conj.(δΓ(conj.(rand_num), my_system) |> Diagonal)
+
+    @test Γ(rand_num, my_system) |> Diagonal ≈ conj.(Γ(conj.(rand_num), my_system) |> Diagonal)
+
+    @test δρ_R_graphene(GrapheneState(a1, SpinUp), my_system) == δρ_R_graphene(GrapheneState(a1, SpinDown), my_system)
 
 end
 
@@ -223,6 +231,8 @@ end
     @test G_R(rand_num, scattering_pair, my_system) |> imag ≈
           -G_R(conj.(rand_num), scattering_pair_rev, my_system) |> imag
 
+    @test δΓ(rand_num, my_system) |> Diagonal ≈ conj.(δΓ(conj.(rand_num), my_system) |> Diagonal)
+
 end
 
 @testset "No defects present" begin
@@ -233,5 +243,6 @@ end
     scattering_pair = [(s1, s5), (s4, s2)]
     @test δG_R(rand_num, scattering_pair, my_system) ==
           [(0.0 + 0.0im), (0.0 + 0.0im)]
-
+    @test δρ_R_graphene(s2, my_system) == 0.0
+    @test δρ_R_graphene(s3, my_system) == 0.0
 end
