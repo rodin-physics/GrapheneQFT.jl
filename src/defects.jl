@@ -1,32 +1,48 @@
 include("pristine_graphene.jl")
 
 """
-    ImpurityState(ϵ::Float64, coupling::Vector{Tuple{Float64,GrapheneCoord}})
+    Defect
+
+Abstract type for all defect types.
+"""
+abstract type Defect end
+
+"""
+    LocalSpin(x::Float64, y::Float64, z::Float64, coord::GrapheneCoord) <: Defect
+
+A local spin with components `x`, `y`, and `z` located at `coord`. See
+[`GrapheneCoord`](@ref).
+"""
+struct LocalSpin <: Defect
+    x::Float64
+    y::Float64
+    z::Float64
+    coord::GrapheneCoord
+end
+
+"""
+    ImpurityState(ϵ::Float64, coupling::Vector{Tuple{Float64,GrapheneCoord}}) <: Defect
 
 An impurity state of energy `ϵ` (in eV) coupled to the graphene system. The
 tuples in the `coupling` field contain all the coupling energies (in eV) and the
  corresponding [`GrapheneCoord`](@ref)'s.
 """
-struct ImpurityState
+struct ImpurityState <: Defect
     ϵ::Float64
     coupling::Vector{Tuple{Float64,GrapheneCoord}}
 end
 
 """
-    const noimps = ImpurityState[]
+    Hopping(c1::GrapheneCoord, c2::GrapheneCoord, Δ::ComplexF64) <: Defect
 
-An empty array to be used in constructing the [`GrapheneSystem`](@ref) if
-there are no impurity states.
+Hopping modification (in eV) between two [`GrapheneCoord`](@ref)'s. If `c1==c2`,
+ this quantity corresponds to a local energy modification.
 """
-const noimps = ImpurityState[]
-
-"""
-    const nopert = Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}[]
-
-An empty array to be used in constructing the [`GrapheneSystem`](@ref) if
-there are no direct perturbation terms.
-"""
-const nopert = Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}[]
+struct Hopping <: Defect
+    c1::GrapheneCoord
+    c2::GrapheneCoord
+    Δ::ComplexF64
+end
 
 """
     GrapheneSystem(
@@ -34,7 +50,7 @@ const nopert = Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}[]
         T::Float64,
         Δ::Array{ComplexF64,2},
         V::Array{Float64,2},
-        scattering_atoms::Vector{GrapheneCoord},
+        scattering_states::Vector{GrapheneState},
         imps::Vector{Float64},
     )
 
@@ -43,20 +59,19 @@ A structure describing the perturbed graphene system.
 See also [`mkGrapheneSystem`](@ref).
 """
 struct GrapheneSystem
-    μ::Float64                              # Chemical potential
-    T::Float64                              # Temperature
-    Δ::Array{ComplexF64,2}                  # Δ matrix
-    V::Array{Float64,2}                     # V Matrix
-    scattering_atoms::Vector{GrapheneCoord} # List of all perturbed atoms
-    imps::Vector{Float64}                   # Impurity energies
+    μ::Float64                                  # Chemical potential
+    T::Float64                                  # Temperature
+    Δ::Array{ComplexF64,2}                      # Δ matrix
+    V::Array{Float64,2}                         # V Matrix
+    scattering_states::Vector{GrapheneState}    # List of all perturbed states
+    imps::Vector{Float64}                       # Impurity energies
 end
 
 """
     mkGrapheneSystem(
         μ::Float64,
         T::Float64,
-        imps::Vector{ImpurityState},
-        pert::Vector{Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}},
+        defects::Vector{Defect},
     )
 
 Construct [`GrapheneSystem`](@ref).
@@ -64,44 +79,115 @@ Construct [`GrapheneSystem`](@ref).
 # Arguments
 * `μ`: chemical potential
 * `T`: temperature
-* `imps`: a list of [`ImpurityState`]'s
-* `pert`: a list of 3-tuples describing the coupling between carbon atoms
+* `defects`: a list of [`Defect`]'s
 
-When supplying `pert`, ensure that each coordinate pair appears only once as
-repeated pairs with different couplings will cause eariler values to be
-overwritten. The order of the coordinates does not matter. A tuple with the same
-coordinate given twice creates and on-site potential for the coordinate.
+When supplying []`Hopping`](@ref) in `defects`, ensure that each coordinate pair
+appears only once as repeated pairs with different couplings will cause eariler
+values to be overwritten. The order of the coordinates does not matter.
 
-The function constructs a [`GrapheneSystem`](@ref) with the `Δ` and `V` matrix
-computed from `imps` and `pert`. In addition, a list of all
-[`GrapheneCoord`](@ref) that are perturbed (`scattering_atoms` field in
+The function constructs a [`GrapheneSystem`](@ref) with the `Δ` and `V` matrices.
+ In addition, a list of all
+[`GrapheneState`](@ref) that are perturbed (`scattering_states` field in
 [`GrapheneCoord`](@ref)) and a list of
 impurity energies (`imps` field in [`GrapheneCoord`](@ref)) are included.
 """
-function mkGrapheneSystem(
-    μ::Float64,
-    T::Float64,
-    imps::Vector{ImpurityState},
-    pert::Vector{Tuple{GrapheneCoord,GrapheneCoord,ComplexF64}},
-)
+function mkGrapheneSystem(μ::Float64, T::Float64, defects::Vector{Defect})
+
+    hops = filter(x -> typeof(x) == Hopping, defects)
+    spins = filter(x -> typeof(x) == LocalSpin, defects)
+    imps = filter(x -> typeof(x) == ImpurityState, defects)
+
     # Create a coupling dictionary
-    if isempty(pert)
-        pert_dict = Dict{Tuple{GrapheneCoord,GrapheneCoord},ComplexF64}()
+    if isempty(hops)
+        hops_dict = Dict{Tuple{GrapheneState,GrapheneState},ComplexF64}()
     else
-        pert_dict =
+        hops_dict =
             reduce(
                 vcat,
-                map(x -> [((x[1], x[2]), x[3]), ((x[2], x[1]), conj(x[3]))], pert),
+                [
+                    [
+                        (
+                            (
+                                GrapheneState(x.c1, SpinUp),
+                                GrapheneState(x.c2, SpinUp),
+                            ),
+                            x.Δ,
+                        ),
+                        (
+                            (
+                                GrapheneState(x.c2, SpinUp),
+                                GrapheneState(x.c1, SpinUp),
+                            ),
+                            conj(x.Δ),
+                        ),
+                        (
+                            (
+                                GrapheneState(x.c1, SpinDown),
+                                GrapheneState(x.c2, SpinDown),
+                            ),
+                            x.Δ,
+                        ),
+                        (
+                            (
+                                GrapheneState(x.c2, SpinDown),
+                                GrapheneState(x.c1, SpinDown),
+                            ),
+                            conj(x.Δ),
+                        ),
+                    ] for x in hops
+                ],
             ) |> Dict
     end
 
+    if isempty(spins)
+        spins_dict = Dict{Tuple{GrapheneState,GrapheneState},ComplexF64}()
+    else
+        spins_dict =
+            reduce(
+                vcat,
+                [
+                    [
+                        (
+                            (
+                                GrapheneState(s.coord, SpinUp),
+                                GrapheneState(s.coord, SpinUp),
+                            ),
+                            s.z,
+                        ),
+                        (
+                            (
+                                GrapheneState(s.coord, SpinDown),
+                                GrapheneState(s.coord, SpinDown),
+                            ),
+                            -s.z,
+                        ),
+                        (
+                            (
+                                GrapheneState(s.coord, SpinUp),
+                                GrapheneState(s.coord, SpinDown),
+                            ),
+                            s.x - 1im * s.y,
+                        ),
+                        (
+                            (
+                                GrapheneState(s.coord, SpinDown),
+                                GrapheneState(s.coord, SpinUp),
+                            ),
+                            s.x + 1im * s.y,
+                        ),
+                    ] for s in spins
+                ],
+            ) |> Dict
+    end
+
+    pert_dict = mergewith(+, hops_dict, spins_dict)
+
     # Get the coordinates of all the directly-perturbed atoms
-    perturbed_atoms = [x[1] for x in pert_dict |> keys |> collect] |> unique
+    perturbed_atoms =
+        [x[1].coord for x in pert_dict |> keys |> collect] |> unique
     # Get the coordinates of atoms coupled to impurities
     coupled_atoms = [
-        y[2]
-        for
-        y in reduce(
+        y[2] for y in reduce(
             vcat,
             [x.coupling for x in imps],
             init = Vector{Tuple{Float64,GrapheneCoord}}[],
@@ -109,22 +195,42 @@ function mkGrapheneSystem(
     ]
     # Combine the two sets of coordinates and keep only unique entries
     all_atoms = vcat(perturbed_atoms, coupled_atoms) |> unique |> sort
+    all_states = vcat(
+        [GrapheneState(x, SpinUp) for x in all_atoms],
+        [GrapheneState(x, SpinDown) for x in all_atoms],
+    )
+
     # Assemble Δ
-    Δ = [get!(pert_dict, (x, y), 0.0 + 0.0im) for x in all_atoms, y in all_atoms]
+    Δ = [
+        get!(pert_dict, (x, y), 0.0 + 0.0im) for x in all_states,
+        y in all_states
+    ]
+
     # Assemble V
-    V_array = [
+    V_per_spin = [
         [
-            sum([((atom == c[2]) * c[1]) for c in imp.coupling])::Float64 for atom in all_atoms
+            (
+                sum([
+                    ((atom == c[2]) * c[1]) for c in imp.coupling
+                ])::Float64
+            ) for atom in all_atoms
         ] for imp in imps
     ]
-    if !isempty(V_array)
-        V = reduce(hcat, V_array)
+
+    if !isempty(V_per_spin)
+        V_per_spin = reduce(hcat, V_per_spin)
+        V = [
+            1 0
+            0 1
+        ] ⊗ V_per_spin |> collect
     else
-        V = Array{GrapheneCoord}(undef, 0, 0)
+        V = Array{Float64}(undef, 0, 0)
     end
+
     imp_energies = [x.ϵ for x in imps]
-    return GrapheneSystem(μ, T, Δ, V, all_atoms, imp_energies)
+    return GrapheneSystem(μ, T, Δ, V, all_states, imp_energies)
 end
+
 
 """
     peierls_phase(vec_pot, a1::GrapheneCoord, a2::GrapheneCoord)
@@ -168,7 +274,8 @@ function peierls_phase(vec_pot, a1::GrapheneCoord, a2::GrapheneCoord)
     a2_loc = crystal_to_cartesian(a2)
     disp = a2_loc - a1_loc
     res = quadgk(
-        u -> vec_pot(a1_loc[1] + u * disp[1], a1_loc[2] + u * disp[2]) .* disp |> sum,
+        u ->
+            vec_pot(a1_loc[1] + u * disp[1], a1_loc[2] + u * disp[2]) .* disp |> sum,
         0,
         1,
     )[1]
