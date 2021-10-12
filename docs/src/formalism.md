@@ -121,7 +121,7 @@ $$\mathcal{G}_z
 	\left[1-G_{z}\left(\Delta + V\Gamma_z V^\dagger\right)\right]^{-1}G_{z} \,,$$
 is the full Green's function of the bulk system including the effects of defects and perturbations. Similarly, the bottom right block in $\mathbf{G}_z$ corresponds to the full Green's function of the impurity states including their coupling to the perturbed bulk system.
 
-## Graphene Propagator
+## Graphene
 
 Having performed the required manipulations for a general system, we now focus on graphene. Because the electronic properties of graphene are dominated by the carbon $\pi$ orbitals, the electronic states in a pristine system can be described by $|\mathbf{r},L\rangle\otimes|\sigma\rangle$, where $\mathbf{r}$ is the coordinate of the unit cell hosting the orbital, $L$ is the sublattice of the atom, and $\sigma$ is the spin of the electron. This is the basis corresponding to the operators $c_k$ in the derivation above.
 
@@ -210,146 +210,39 @@ $$\langle u, v, L|\otimes\langle\sigma|(z - \hat{H})^{-1}|u', v' ,L'\rangle\otim
 		z\Omega^{u-u',v-v'}_z
 	\end{pmatrix}|L'\rangle \delta_{\sigma\sigma'}.$$
 
+Depending on the sublattices of the two states, we pick out the appropriate element of the $2\times 2$ matrix above.
 
+### Graphene Green's Function
 
-
-
-
-
-The individual elements of the full real-space Green's function are
+Following the general derivation above, the individual elements of the full real-space Green's function are
 
 $$\mathcal{G}_z^{jk}
-=  G_{0,z}^{jk}+\sum_{lm}G_{0,z}^{jl}\left\{\left[ \left(\Delta +  V\Gamma_{0,z}V^\dagger\right)^{-1}-
-G_{0,z}\right]^{-1}\right\}_{lm}G_{0,z}^{mk}\,,$$
+=  G_z^{jk}+\sum_{lm}G_z^{jl}\left\{\left[ \left(\Delta +  V\Gamma_zV^\dagger\right)^{-1}-
+G_z\right]^{-1}\right\}_{lm}G_z^{mk}\,,$$
 
-where $G_{0,z}^{jk}$ are the appropriate elements of the $2\times 2$ $G_{0,z}(\mathbf{R}_{kj})$ blocks.
+where $j$, $k$, $l$, and $m$ are compact labels for the graphene states $|u, v ,L\rangle\otimes|\sigma\rangle$. As written, the sum over $l$ and $m$ includes all the states in the system. However, the expression can be made considerably simpler. The term $\Delta + V\Gamma_z V^\dagger$ is a square matrix including all the system states. Let us rearrange the elements in the matrix to give it a block diagonal form:
 
-As written, the sum over $l$ and $m$ includes all the atoms in the system. However, the expression can be made considerably simpler. The term $\Delta + V\Gamma_{0,z}V^\dagger$ is a square matrix including all the system atoms. Let us rearrange the elements in the matrix to give it a block diagonal form:
+$$\Delta + V\Gamma_zV^\dagger \rightarrow \begin{pmatrix}0&0\\0&A\end{pmatrix}\,,$$
 
-$$\Delta + V\Gamma_{0,z}V^\dagger \rightarrow \begin{pmatrix}0&0\\0&F\end{pmatrix}\,,$$
+where we created a square matrix $A$ that contains only the perturbed states. Consequently,
 
-where we created a square matrix $F$ that contains only the perturbed atoms. Consequently,
-
-$$\left(\Delta + V\Gamma_{0,z}V^\dagger\right)^{-1} \rightarrow \begin{pmatrix}\infty &0\\0&F^{-1}\end{pmatrix}$$
+$$\left(\Delta + V\Gamma_zV^\dagger\right)^{-1} \rightarrow \begin{pmatrix}\infty &0\\0&A^{-1}\end{pmatrix}$$
 
 and
 
-$$\left[ \left(\Delta +  V\Gamma_{0,z}V^\dagger\right)^{-1}-
-G_{0,z}\right]^{-1} \rightarrow \begin{pmatrix}0 &0\\0& \left[F^{-1} - \tilde{G}_{0,z}\right]^{-1}\end{pmatrix}\,,$$
+$$\left[ \left(\Delta +  V\Gamma_zV^\dagger\right)^{-1}-
+G_z\right]^{-1} \rightarrow \begin{pmatrix}0 &0\\0& \left[A^{-1} - \tilde{G}_z\right]^{-1}\end{pmatrix}\,,$$
 
-where $\tilde{G}_{0,z}$ is a portion of $G_{0,z}$ that only includes the perturbed atoms. Hence, the $lm$ summation only needs to run over the perturbed atoms, too:
+where $\tilde{G}_z$ is a portion of $G_z$ that only includes the perturbed states. Hence, the $lm$ summation only needs to run over these, too:
 
 $$\mathcal{G}_z^{jk}
-=  G_{0,z}^{jk}+\sum_{lm\in\mathrm{pert}}G_{0,z}^{jl}\left\{\left[ \left(\tilde{\Delta} +  \tilde{V}\Gamma_{0,z}\tilde{V}^\dagger\right)^{-1}-
-\tilde{G}_{0,z}\right]^{-1}\right\}_{lm}G_{0,z}^{mk}\,.$$
+=  G_z^{jk}+\sum_{lm\in\mathrm{pert}}G_z^{jl}\left\{\left[ \left(\tilde{\Delta} +  \tilde{V}\Gamma_z\tilde{V}^\dagger\right)^{-1}-
+\tilde{G}_z\right]^{-1}\right\}_{lm}G_z^{mk}\,.$$
 
-Here, the tilde over the matrices indicates that only the elements corresponding to the perturbed atoms are retained. Note that a particular atom is included in $\tilde{V}$ *and* $\tilde{\Delta}$ even if it is perturbed by only one of the terms!
-
-
-Using the fact that $\mathbf{r}$ can be written as $u\mathbf{d}_1 + v\mathbf{d}_2$, where $\mathbf{d}_{1/2}=d\left(\pm1, \sqrt{3}\right)/2$ are the lattice vectors, the electronic basis becomes $|u,v,L\rangle\otimes|\sigma\rangle$. 
-
-The next required ingredient is the graphene Green's function $G_z$. To obtain this quantity, first recall that  Using $a^\dagger_{\mathbf{q}\sigma} = N^{-1/2}\sum_\mathbf{R}a_{\mathbf{R}\sigma}^\dagger e^{i\mathbf{R}\cdot\mathbf{q}}$ (same for the other sublattice), where $N$ is the number of unit cells in the system, we have
-
-$$\hat{H}_0 = \frac{1}{N}\sum_{\mathbf{RR}'}\sum_{\mathbf{qq}'}\sum_{\sigma\sigma'} \begin{pmatrix}a_{\mathbf{R}\sigma}^\dagger & b_{\mathbf{R}\sigma}^\dagger \end{pmatrix} \begin{pmatrix} 0 & -t f_\mathbf{q} \\ -t f^*_\mathbf{q} & 0\end{pmatrix} e^{i\mathbf{q}\cdot\mathbf{R}-i\mathbf{q}'\cdot\mathbf{R}'} \begin{pmatrix}a_{\mathbf{R}'\sigma'}\\ b_{\mathbf{R}'\sigma'}\end{pmatrix}\delta_{\mathbf{qq}'}\delta_{\sigma\sigma'}
-\\
-= \sum_{\mathbf{RR}'}\sum_{\sigma} \begin{pmatrix}a_{\mathbf{R}\sigma}^\dagger & b_{\mathbf{R}\sigma}^\dagger \end{pmatrix}\left[\frac{1}{N}\sum_{\mathbf{q}} \begin{pmatrix} 0 & -t f_\mathbf{q} \\ -t f^*_\mathbf{q} & 0\end{pmatrix} e^{i\mathbf{q}\cdot\left(\mathbf{R}-\mathbf{R}'\right)} \right]\begin{pmatrix}a_{\mathbf{R}'\sigma}\\ b_{\mathbf{R}'\sigma}\end{pmatrix}.$$
-
-### Graphene Green's Function
-
-Defining the pristine graphene Green's function in real space as $G_{0,z} = \left(z -  H_0 \right)^{-1}$ allows us write the full real-space Green's function as $\mathcal{G}_z^{-1} =  G_{0,z}^{-1} - \Delta -  V\Gamma_{0,z}V^\dagger$. Inverting this expression yields
-
-$$\mathcal{G}_z =  \left[G_{0,z}^{-1} - \Delta -  V\Gamma_{0,z}V^\dagger\right]^{-1}
-=  \left[1 - G_{0,z}\left(\Delta +  V\Gamma_{0,z}V^\dagger\right)\right]^{-1}G_{0,z}
-\\
-=  G_{0,z}+G_{0,z}\left(\Delta +  V\Gamma_{0,z}V^\dagger\right)\left[ 1-
-G_{0,z}\left(\Delta +  V\Gamma_{0,z}V^\dagger\right)\right]^{-1}G_{0,z}
-\\
-=  G_{0,z}+G_{0,z}\left[ \left(\Delta +  V\Gamma_{0,z}V^\dagger\right)^{-1}-
-G_{0,z}\right]^{-1}G_{0,z}\,.$$
-
-We can obtain $G_{0,z}$ from the momentum-space graphene Hamiltonian as follows:
-
-$$G_{0,z} = \left(z -  H_0 \right)^{-1} = \left(z - \Theta^\dagger H_0^\mathbf{Q}\Theta \right)^{-1} = \Theta\left(z -  H_0^\mathbf{Q} \right)^{-1}\Theta^\dagger\,.$$
+Here, the tilde over the matrices indicates that only the elements corresponding to the perturbed states are retained. Note that a particular state is included in $\tilde{V}$ *and* $\tilde{\Delta}$ even if it is perturbed by only one of the terms!
 
 ### Impurity Green's Function
 
-To calculate the full impurity Green's function, denoted by $\Gamma_z$, we write
+For the full impurity Green's function, we follow the discussion above to obtain
 
-$$\Gamma_z = \left[\Gamma^{-1}_{0,z} - V^\dagger \left(z - H_0 - \Delta\right)^{-1}V\right]^{-1} = \left[1 - \Gamma_{0,z}V^\dagger \left(z - H_0 - \Delta\right)^{-1}V\right]^{-1}\Gamma_{0,z}
-\\
-= \Gamma_{0,z} + \Gamma_{0,z}V^\dagger\Lambda_z\left(1-V\Gamma_{0,z}V^\dagger \Lambda_z\right)^{-1}V\Gamma_{0,z}\,,$$
-
-where
-
-$$\Lambda_z = \left(z - H_0 - \Delta\right)^{-1} = \left[1 - \left(z - H_0\right)^{-1}\Delta\right]^{-1} \left(z - H_0\right)^{-1} =\left(1 - G_{0,z}\Delta\right)^{-1} G_{0,z}\,.$$
-
-Similarly to the discussion above, we only need to include the graphene atoms that are perturbed in the $\Lambda$ and $V$ matrices. This yields
-
-$$\Gamma_z
-= \Gamma_{0,z} + \Gamma_{0,z}\tilde{V}^\dagger\tilde{\Lambda}_z\left(1-\tilde{V}\Gamma_{0,z}\tilde{V}^\dagger \tilde{\Lambda}_z\right)^{-1}\tilde{V}\Gamma_{0,z}\,,$$
-
-where
-
-$$\tilde{\Lambda}_z =\left(1 - \tilde{G}_{0,z}\tilde{\Delta}\right)^{-1}\tilde{G}_{0,z}\,.$$
-
-## Free Energy
-
-
-
-
-## Occupation Number
-
-
-## Adding Spin Index
-To include spin effects, we consider a similar formalism as above, with an additional spin term $J$ in the Hamiltonian.
-
-$$\hat{\mathcal{H}} = 	\mathbf{c}^\dagger(H_0 + \Delta + J)\mathbf{c}
-	+ 	\mathbf{g}^\dagger h\mathbf{g}
-	+ \mathbf{g}^\dagger V \mathbf{c} +  \mathbf{c}^\dagger V^\dagger \mathbf{g} + H_{spin}
-	\,.$$
-We define $\Upsilon = \Delta + J$. The creation and annihilation operator vectors now include the spin index and we now write the pristine graphene Hamiltonian using the tight-binding formalism in momentum space as
-
-$$\hat{H}_0 = \sum_\mathbf{q} \begin{pmatrix} a_{\uparrow, \mathbf{q}}^\dagger & b_{\uparrow, \mathbf{q}}^\dagger & a_{\downarrow, \mathbf{q}}^\dagger & b_{\downarrow, \mathbf{q}}^\dagger \end{pmatrix} \begin{pmatrix} 0 & -t f_\mathbf{q} & 0 & 0 \\ -t f^*_\mathbf{q} & 0 & 0 & 0 \\ 0 & 0 & 0 & -t f_{\mathbf{q}} \\ 0 & 0 -t f^*_{\mathbf{q}} \end{pmatrix} \begin{pmatrix} a_{\uparrow, \mathbf{q}} \\ b_{\uparrow, \mathbf{q}} \\ a_{\downarrow, \mathbf{q}} \\ b_{\downarrow, \mathbf{q}} \end{pmatrix} = \sum_\mathbf{q}c^\dagger_\mathbf{q}H_\mathbf{q} c_\mathbf{q}\,,$$
-
-where all the terms are the same as before and $a_{\uparrow, \mathbf{q}}, a_{\downarrow, \mathbf{q}}$ and $b_{\uparrow, \mathbf{q}}, b_{\downarrow, \mathbf{q}}$ correspond to the different spins of the $p_z$ orbitals in the two sublattices. We can think of $J$ as an extension of the perturbation term $\Delta$. $\Delta$ allows for coupling between orbitals of the same spin; with the consideration of the spin index, $\Delta$ takes on a block-diagonal form. In the term $\Upsilon$, $J$ now accounts for the off-diagonal terms that allow coupling between orbitals of different spins.
-
-Since the inclusion of the spin index does not change the form of the imaginary-time action, it follows that the partition function and by extension, the form of the full Green's functions will be almost identical.
-
-### Graphene Green's Function
-
-The full real-space graphene Green's function is given by $\mathcal{G}_z^{-1} = G_{0,z}^{-1} - \Upsilon - V \Gamma_{0,z}V^\dagger$. Inverting the expression gives us
-
-$$\mathcal{G}_z = [G_{0,z}^{-1} - (\Upsilon + V \Gamma_{0,z} V^\dagger)]^{-1}
-= G_{0,z} + G_{0,z} [(\Upsilon + V \Gamma_{0,z} V^\dagger)^{-1} - G_{0,z}]^{-1} G_{0,z} \\
-= G_{0,z} + G_{0,z} [(\Delta + J + V \Gamma_{0,z} V^\dagger)^{-1} - G_{0,z}]^{-1} G_{0,z}\,.$$
-
-### Impurity Green's Function
-
-The full impurity Green's function, denoted by $\Gamma_z$, is given by
-
-$$\Gamma_z = [\Gamma_{0,z}^{-1} - V^\dagger (z - H_0 - \Upsilon)^{-1} V]^{-1}
-= \Gamma_{0,z} + \Gamma_{0,z} V^\dagger (\Lambda_z^{-1} - V \Gamma_{0,z} V^\dagger)^{-1} V \Gamma_{0,z}\,,$$
-
-where, similar to the previous formalism,
-
-$$\Lambda_z = (z - H_0 - \Upsilon)^{-1} = [1 - (z - H_0)^{-1} \Upsilon]^{-1} (z - H_0)^{-1} \\
-= [1 - G_{0,z}(\Delta + J)]^{-1} G_{0,z} \, .$$
-
-As discussed above, we only need to include atoms that are perturbed in the $\Lambda_z$ and/or the $V$ matrices. This yields
-
-$$\Gamma_z = \Gamma_{0,z} + \Gamma_{0,z} \tilde{V}^\dagger (\tilde{\Lambda}_z^{-1} - \tilde{V} \Gamma_{0,z} \tilde{V}^\dagger)^{-1} \tilde{V} \Gamma_{0,z}\,,$$
-
-where
-$$\Lambda_z = [1 - \tilde{G}_{0,z}(\tilde{\Delta} + \tilde{J})]^{-1} \tilde{G}_{0,z} \, .$$
-
-The term $\tilde{J}$ is a diagonal matrix composed of $\hat{J}_j$, where the index $j$ runs over perturbed atoms.
-
-To work out the form of $\hat{J}_j$, we use the Ruderman–Kittel–Kasuya–Yosida (RKKY) formalism to obtain
-
-$$\hat{J}_j = J_j \times \begin{pmatrix}
-S_{jz} & 0 & S_{j+} & 0 \\
-0 & S_{jz} & 0 & S_{j+} \\
-S_{j-} & 0  & -S_{jz} & 0 \\
-0 & S_{j-} & 0 & -S_{jz} \end{pmatrix} \, ,$$
-
-where $S_{j\pm} = S_{jx} \pm i S_{jy}$.
+$$\Gamma_z + \Gamma_z \tilde{V}^\dagger\left(\tilde{G}_z^{-1}-\tilde{\Delta} - \tilde{V}\Gamma_z \tilde{V}^\dagger\right)^{-1} \tilde{V}\Gamma_z.$$

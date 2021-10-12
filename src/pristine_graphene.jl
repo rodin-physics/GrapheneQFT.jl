@@ -81,7 +81,8 @@ end
 """
     GrapheneState(coord::GrapheneCoord, spin::Spin)
 
-Quantum state of an electron in graphene.
+Quantum state of an electron in graphene, denoted by 
+``|u, v, L\\rangle\\otimes |\\sigma\\rangle`` in the drivation.
 
 The state is given by the [`GrapheneCoord`](@ref) of the orbital, as well as
 the electronic spin, which can take values `SpinUp` and `SpinDown`.
