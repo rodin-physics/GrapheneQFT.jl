@@ -98,25 +98,19 @@ function δΓ(z::ComplexF64, s::GrapheneSystem)
     else
         Γ0 = 1 ./ (z .- repeat(s.imps, 2)) |> Diagonal |> Array
         prop_mat = propagator_matrix(z, s.scattering_states)
-        Λ =
-            prop_mat .+
-            prop_mat *
-            s.Δ *
-            inv(
-                Diagonal(ones(length(s.scattering_states))) .-
-                prop_mat * s.Δ,
-            ) *
-            prop_mat
+
         res =
             Γ0 *
             adjoint(s.V) *
-            Λ *
+            prop_mat *
             inv(
                 Diagonal(ones(length(s.scattering_states))) .-
-                s.V * Γ0 * adjoint(s.V) * Λ,
+                (s.Δ .+ s.V * Γ0 * adjoint(s.V)) *
+                prop_mat
             ) *
             s.V *
             Γ0
+
         return res
     end
 end
