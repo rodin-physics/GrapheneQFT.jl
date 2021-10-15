@@ -74,11 +74,7 @@ $$\mathcal{G}_z
 is the full Green's function of the bulk system including the effects of defects and perturbations. Similarly, the bottom right block in $\mathbf{G}_z$ corresponds to the full Green's function of the impurity states including their coupling to the perturbed bulk system. Identifying $\Lambda_z = (G_z^{-1} - \Delta)^{-1}$ as the Green's function of the bulk system including the effects of perturbations but not the second system, we can write the impurity states' Green's function as
 
 $$\Gamma_z + \Gamma_z V^\dagger \mathcal{G}_z V \Gamma_z
-=
-\Gamma_z V^\dagger \Lambda_z \left(
-1 - V \Gamma_z V^\dagger \Lambda_z \right)^{-1}
-V \Gamma_z \, .$$
-
+= \Gamma_z V^\dagger \Lambda_z \left( 1 - V \Gamma_z V^\dagger \Lambda_z \right)^{-1} V \Gamma_z \, .$$
 From the partition function, we can also write down the Helmholtz free energy $F = -\beta^{-1} \ln \mathcal{Z}$:
 
 $$F = -\beta^{-1}\sum_n \ln\left|\beta
