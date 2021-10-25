@@ -25,7 +25,7 @@ function Base.isless(s1::Sublattice, s2::Sublattice)
         (A, B) => true
         _ => false
     end
-end
+    end
 
 @data Spin begin
     SpinUp
@@ -159,7 +159,7 @@ function graphene_multiple_neighbors(atom::GrapheneCoord, idx::Int)
     end
     res = sort(
         res,
-        by = a ->
+        by=a ->
             norm(crystal_to_cartesian(atom) - crystal_to_cartesian(a)),
     )
     return res
@@ -178,13 +178,13 @@ end
 
 @inline function Ω(z, u, v)
     return ((quadgk(
-        x -> Ω_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
+        x -> 2 * Ω_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π / 3,
         2 * π / 3,
         π,
-        atol = 1e-16,
-        rtol = 1e-4,
+        atol=1e-16,
+        rtol=1e-4,
     ))[1])
 end
 
@@ -199,13 +199,13 @@ end
 
 @inline function Ωp(z, u, v)
     return ((quadgk(
-        x -> Ωp_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
+        x -> 2 * Ωp_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π / 3,
         2 * π / 3,
         π,
-        atol = 1e-16,
-        rtol = 1e-4,
+        atol=1e-16,
+        rtol=1e-4,
     ))[1])
 end
 
@@ -220,13 +220,13 @@ end
 
 @inline function Ωn(z, u, v)
     return ((quadgk(
-        x -> Ωn_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
+        x -> 2 * Ωn_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π / 3,
         2 * π / 3,
         π,
-        atol = 1e-16,
-        rtol = 1e-4,
+        atol=1e-16,
+        rtol=1e-4,
     ))[1])
 end
 
@@ -247,18 +247,8 @@ function graphene_propagator(a_l::GrapheneState, a_m::GrapheneState, z)
     end
 end
 
-function propagator_matrix(z, States::Vector{GrapheneState})
-    precomputed = Dict{
-        Tuple{
-            Int,
-            Int,
-            GrapheneQFT.Sublattice,
-            GrapheneQFT.Sublattice,
-            GrapheneQFT.Spin,
-            GrapheneQFT.Spin,
-        },
-        ComplexF64,
-    }()
+        function propagator_matrix(z, States::Vector{GrapheneState})
+    precomputed = Dict{Tuple{Int,Int,GrapheneQFT.Sublattice,GrapheneQFT.Sublattice,GrapheneQFT.Spin,GrapheneQFT.Spin,},ComplexF64,}()
 
     len_states = length(States)
     out = zeros(ComplexF64, len_states, len_states)
