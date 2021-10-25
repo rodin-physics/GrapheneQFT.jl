@@ -1,7 +1,7 @@
 name = "GrapheneQFT"
 uuid = "b903362a-f3fb-4fd6-ad42-15d1112bb05b"
 authors = ["alex <alerodin@gmail.com>"]
-version = "0.3.0"
+version = "0.3.1"
 
 [deps]
 Kronecker = "2c470bb0-bcc8-11e8-3dad-c9649493f05e"
