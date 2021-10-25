@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Formalism · GrapheneQFT.jl Documentation</title><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="index.html">GrapheneQFT.jl Documentation</a></span></div><form class="docs-search" action="search.html"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="index.html">Home</a></li><li class="is-active"><a class="tocitem" href="formalism.html">Formalism</a><ul class="internal"><li><a class="tocitem" href="#General-System"><span>General System</span></a></li><li><a class="tocitem" href="#Graphene"><span>Graphene</span></a></li></ul></li><li><a class="tocitem" href="api.html">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href="formalism.html">Formalism</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="formalism.html">Formalism</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/rodin-physics/GrapheneQFT.jl/blob/master/docs/src/formalism.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Formalism"><a class="docs-heading-anchor" href="#Formalism">Formalism</a><a id="Formalism-1"></a><a class="docs-heading-anchor-permalink" href="#Formalism" title="Permalink"></a></h1><h2 id="General-System"><a class="docs-heading-anchor" href="#General-System">General System</a><a id="General-System-1"></a><a class="docs-heading-anchor-permalink" href="#General-System" title="Permalink"></a></h2><p>Instead of starting directly with the problem of defects in graphene, we start with a more general scenario which will make the derivation more transparent. Consider a pristine system described by a second-quantized Hamiltonian <span>$\sum_{jk} c^\dagger_j H_{jk}c_k$</span>, where <span>$j$</span> and <span>$k$</span> label the states of the system, <span>$c_j$</span> and <span>$c_j^\dagger$</span> are the corresponding annihilation and creation operators, and <span>$H_{jk}$</span> gives the coupling between the states. Next, we introduce two types of perturbation to this system. First, we can modify the coupling between the states. Second, we introduce a second system described by a Hamiltonian <span>$\sum_{jk} g^\dagger_j h_{jk}g_k$</span> and couple it to the original one. The total Hamiltonian, then, can be written as</p><p class="math-container">\[\hat{\mathcal{H}} = \sum_{jk} c^\dagger_j H_{jk}c_k
+    +
+    \sum_{jk} c^\dagger_j \Delta_{jk}c_k
+    +
+    \sum_{jk} \left(c^\dagger_j V_{jk}g_k + g^\dagger_k V_{jk}^* c_j\right)
+    +
+    \sum_{jk} g^\dagger_j h_{jk}g_k\,,\]</p><p>where the second term in the first line describes the modified coupling in the original system and the first term in the second line gives the coupling between the two systems. The Hamiltonian can be written more compactly if we assemble the operators and the coupling elements into vectors and matrices, respectively:</p><p class="math-container">\[\hat{\mathcal{H}} = \mathbf{c}^\dagger H\mathbf{c} + \mathbf{c}^\dagger \Delta \mathbf{c}
+    +\left(\mathbf{c}^\dagger V\mathbf{g} + \mathbf{g}^\dagger V^\dagger \mathbf{c}\right) + \mathbf{g}^\dagger h\mathbf{g}\,.\]</p><p>Next, we transcribe the Hamiltonian into the imaginary-time action</p><p class="math-container">\[S = \sum_{n}\bar{\boldsymbol{\psi}}_n \overbrace{\left(-i\omega_n - \mu + H\right)}^{-G^{-1}_{i\omega_n + \mu}}\boldsymbol{\psi}_n + \bar{\boldsymbol{\psi}}_n\Delta \boldsymbol{\psi}_n
+    +\left(\bar{\boldsymbol{\psi}}_n V\boldsymbol{\phi}_n + \bar{\boldsymbol{\phi}}_n V^\dagger \boldsymbol{\psi}_n\right) + \bar{\boldsymbol{\phi}}_n \overbrace{\left(-i\omega_n - \mu + h\right)}^{-\Gamma_{i\omega_n+\mu}^{-1}}\boldsymbol{\phi}_n
+	\\
+	=
+	\sum_{n}
+	\begin{pmatrix}
+	\bar{\boldsymbol{\psi}}_n &amp; \bar{\boldsymbol{\phi}}_n
+	\end{pmatrix}
+	\begin{pmatrix}
+        -G_{i\omega_n+\mu}^{-1} + \Delta &amp; V
+        \\
+        V^\dagger &amp; -\Gamma_{i\omega_n+\mu}^{-1}
+    \end{pmatrix}
+	\begin{pmatrix}
+	\boldsymbol{\psi}_n \\ \boldsymbol{\phi}_n
+	\end{pmatrix}
+	\,,\]</p><p>where <span>$\omega_n$</span> are the fermionic Matsubara frequencies, <span>$\mu$</span> is the chemical potential, and <span>$\boldsymbol{\phi}_n$</span> and <span>$\boldsymbol{\psi}_n$</span> (<span>$\bar{\boldsymbol{\phi}}_n$</span> and <span>$\bar{\boldsymbol{\psi}}_n$</span>) are vectors of Grassmann numbers corresponding to <span>$\mathbf{g}$</span> and <span>$\mathbf{c}$</span> (<span>$\mathbf{g}^\dagger$</span> and <span>$\mathbf{c}^\dagger$</span>). We also identify <span>$G_{z}$</span> and <span>$\Gamma_z$</span> as the Green&#39;s functions for the two systems.</p><p>Exponentiating <span>$-S$</span> and integrating over all the Grassmann variables yields the partition function</p><p class="math-container">\[\mathcal{Z}
+    =\prod_n
+    \left|\beta
+    \begin{pmatrix}
+        -G_{i\omega_n+\mu}^{-1} + \Delta &amp; V
+        \\
+        V^\dagger &amp; -\Gamma_{i\omega_n+\mu}^{-1}
+    \end{pmatrix}
+    \right|\,,\]</p><p>where <span>$\beta = 1 / (k_BT)$</span>. We can identify the full system Green&#39;s function from the determinant in <span>$\mathcal{Z}$</span></p><p class="math-container">\[\mathbf{G}_{z}
+    =
+    \begin{pmatrix}
+        G_{z}^{-1} - \Delta &amp; -V
+        \\
+        -V^\dagger &amp; \Gamma_{z}^{-1}
+    \end{pmatrix}^{-1}
+    =
+    \begin{pmatrix}
+         \mathcal{G}_z &amp;\ \mathcal{G}_z V \Gamma_{z}
+        \\
+         \Gamma_{z}V^\dagger \mathcal{G}_z &amp; \Gamma_{z}+ \Gamma_{z}V^\dagger \mathcal{G}_z V \Gamma_{z}
+    \end{pmatrix}\,,\]</p><p>where</p><p class="math-container">\[\mathcal{G}_z
+    =\left(G_{z}^{-1} - \Delta - V\Gamma_z V^\dagger\right)^{-1}
+    = G_{z}+G_{z}\left(\Delta + V\Gamma_z V^\dagger\right)
+	\left[1-G_{z}\left(\Delta + V\Gamma_z V^\dagger\right)\right]^{-1}G_{z} \,,\]</p><p>is the full Green&#39;s function of the bulk system including the effects of defects and perturbations. Similarly, the bottom right block in <span>$\mathbf{G}_z$</span> corresponds to the full Green&#39;s function of the impurity states including their coupling to the perturbed bulk system:</p><p class="math-container">\[\Gamma_z + \Gamma_z V^\dagger \mathcal{G}_z V \Gamma_z
+= \Gamma_z + \Gamma_z V^\dagger G_z \left[1 - (\Delta + V \Gamma_z V^\dagger) G_z \right]^{-1} V \Gamma_z \, .\]</p><p>From the partition function, we can also write down the Helmholtz free energy <span>$F = -\beta^{-1} \ln \mathcal{Z}$</span>:</p><p class="math-container">\[F = -\beta^{-1}\sum_n \ln\left|\beta
+    \begin{pmatrix}
+        -G_{i\omega_n+\mu}^{-1} + \Delta &amp; V
+        \\
+        V^\dagger &amp; -\Gamma_{i\omega_n+\mu}^{-1}
+    \end{pmatrix}
+    \right|
+    \\
+    = -\beta^{-1}\sum_n \ln\Bigg|\beta
+    \begin{pmatrix}
+        -G_{i\omega_n+\mu}^{-1} &amp; 0
+        \\
+        0 &amp; -\Gamma_{i\omega_n+\mu}^{-1}
+    \end{pmatrix}
+    \left[
+    1
+    +
+    \begin{pmatrix}
+        -G_{i\omega_n+\mu} &amp; 0
+        \\
+        0 &amp; -\Gamma_{i\omega_n+\mu}
+    \end{pmatrix}
+    \begin{pmatrix}
+        \Delta &amp; V
+        \\
+        V^\dagger &amp; 0
+    \end{pmatrix}
+    \right]
+    \Bigg|\,.\]</p><p>Removing the part of <span>$F$</span> corresponding to the free energy of the two isolated system in the absence of any perturbation yields the defect- and coupling-induced modification to <span>$F$</span></p><p class="math-container">\[\delta F
+    = -\beta^{-1}\sum_n \ln\left|
+    \begin{pmatrix}
+       1- G_{i\omega_n+\mu}\Delta &amp; -G_{i\omega_n+\mu}V
+        \\
+       - \Gamma_{i\omega_n+\mu}V^\dagger &amp; 1
+    \end{pmatrix}
+    \right|
+    \\
+    = -\beta^{-1}\sum_n \ln\left|
+      1- G_{i\omega_n+\mu}\left(\Delta+V\Gamma_{i\omega_n+\mu}V^\dagger\right)
+    \right|\,.\]</p><h2 id="Graphene"><a class="docs-heading-anchor" href="#Graphene">Graphene</a><a id="Graphene-1"></a><a class="docs-heading-anchor-permalink" href="#Graphene" title="Permalink"></a></h2><p>Having performed the required manipulations for a general system, we now focus on graphene. Because the electronic properties of graphene are dominated by the carbon <span>$\pi$</span> orbitals, the electronic states in a pristine system can be described by <span>$|\mathbf{r},L\rangle\otimes|\sigma\rangle$</span>, where <span>$\mathbf{r}$</span> is the coordinate of the unit cell hosting the orbital, <span>$L$</span> is the sublattice of the atom, and <span>$\sigma$</span> is the spin of the electron. This is the basis corresponding to the operators <span>$c_k$</span> in the derivation above.</p><p>The next required ingredient is the graphene Green&#39;s function <span>$G_z$</span>. Since <span>$G_z = (z - H)^{-1}$</span>, it is a matrix whose elements give the propagation amplitudes between graphene states. The matrix elements can be calculated using</p><p class="math-container">\[\langle\mathbf{r}, L|\otimes\langle\sigma|(z - \hat{H})^{-1}|\mathbf{r}&#39;,L&#39;\rangle\otimes|\sigma&#39;\rangle = \frac{1}{N}\sum_{\mathbf{qq}&#39;}\langle\mathbf{q}, L| \otimes \langle \sigma|e^{i\mathbf{q}\cdot\mathbf{r}}(z - \hat{H})^{-1}e^{-i\mathbf{q}&#39;\cdot\mathbf{r}&#39;}|\mathbf{q}&#39;,L&#39;\rangle\otimes|\sigma&#39;\rangle,\]</p><p>where we Fourier-transformed the real-space states so that the sums over the momenta <span>$\mathbf{q}$</span> and <span>$\mathbf{q}&#39;$</span> run over the entire Brillouin zone. Because the momentum-space Hamiltonian is diagonal in <span>$\mathbf{q}$</span> and <span>$\sigma$</span>, we can write</p><p class="math-container">\[\langle\mathbf{r}, L|\otimes\langle\sigma|(z - \hat{H})^{-1}|\mathbf{r}&#39;,L&#39;\rangle\otimes|\sigma&#39;\rangle = \frac{1}{N}\sum_{\mathbf{q}}\langle\mathbf{q}, L|e^{i\mathbf{q}\cdot\mathbf{r}}(z - \hat{H})^{-1}e^{-i\mathbf{q}\cdot\mathbf{r}&#39;}|\mathbf{q},L&#39;\rangle \delta_{\sigma\sigma&#39;}
+\\
+= \langle L|\frac{1}{N}\sum_{\mathbf{q}}e^{i\mathbf{q}\cdot\left(\mathbf{r}-\mathbf{r}&#39;\right)}(z - H_\mathbf{q})^{-1}|L&#39;\rangle \delta_{\sigma\sigma&#39;}.\]</p><p>Using</p><p class="math-container">\[H_\mathbf{q} =\begin{pmatrix} 0 &amp; -t f_\mathbf{q} \\ -t f^*_\mathbf{q} &amp; 0\end{pmatrix} ,\]</p><p>where <span>$t = 2.8$</span>eV is the nearest-neighbor hopping integral, <span>$f_\mathbf{q} = 1 + e^{i\mathbf{q}\cdot\mathbf{d}_1}+e^{i\mathbf{q}\cdot\mathbf{d}_2}$</span>, and <span>$\mathbf{d}_{1/2}=d\left(\pm1, \sqrt{3}\right)/2$</span> are the lattice vectors, we have</p><p class="math-container">\[\frac{1}{N}\sum_\mathbf{q} \left(z -  H_\mathbf{q} \right)^{-1} e^{i\left(\mathbf{r}_k - \mathbf{r}_j\right)\cdot\mathbf{q}}  = \frac{1}{N}\sum_\mathbf{q}
+\begin{pmatrix}
+z&amp; - tf_\mathbf{q}
+\\
+- tf_\mathbf{q}^* &amp; z
+\end{pmatrix}\frac{1}{z^2 - t^2 \left|f_\mathbf{q}\right|^2} e^{i\mathbf{r}_{kj}\cdot\mathbf{q}}\,.\]</p><p>To perform the summation over <span>$\mathbf{q}$</span>, we first introduce</p><p class="math-container">\[\Omega^{u,v}_z =
+	\frac{1}{N}\sum_{\mathbf{q}\in\mathrm{BZ}}
+	\frac{
+		e^{i\mathbf{q}\cdot \left(u\mathbf{d}_1 + v\mathbf{d}_2\right)}
+	}
+	{z^2 - t^2\left| f_{\mathbf{q}}\right|^2}\]</p><p>with <span>$u\mathbf{d}_1 + v\mathbf{d}_2 = \frac{d}{2}\left(u - v, \sqrt{3}\left(u+v\right)\right)$</span>. Using <span>$\mathbf{q}\cdot \left(u\mathbf{d}_1 + v\mathbf{d}_2\right)  = \frac{d}{2}\left[\left(u - v\right)q_x + \sqrt{3}\left(u+v\right)q_y\right]$</span> and turning the momentum sum into an integral yields</p><p class="math-container">\[\Omega^{u,v}\left(z\right)
+	= \frac{1}{\left(2\pi\right)^2}\oint dx \oint dy
+	\frac
+	{e^{i \left[\left(u - v\right)x + \left(u+v\right)y\right]}}
+	{z^2 - t^2\left(1 + 4\cos^2 x + 4 \cos x\cos y \right)}\,.\]</p><p>From</p><p class="math-container">\[\oint d\theta \frac{e^{il\theta}}{W-\cos\theta} = 2\pi \frac{\left(W - \sqrt{W - 1}\sqrt{W + 1}\right)^{|l|}}{\sqrt{W - 1}\sqrt{W + 1}}\,,\]</p><p>we get</p><p class="math-container">\[\Omega^{u,v}_z = \frac{1}{2\pi}\frac{1}{4t^2}
+	\oint dx \frac{e^{i\left(u - v\right)x}}{\cos x}\frac{\left(W - \sqrt{W - 1}\sqrt{W + 1}\right)^{|u+v|}}{\sqrt{W - 1}\sqrt{W + 1}}\,,
+	\\
+	W = \frac{\frac{z^2}{t^2}-1}{4\cos x}-\cos x\,.\]</p><p>Finally, for <span>$\mathbf{r} = u\mathbf{d}_1 + v\mathbf{d}_2$</span>, we have</p><p class="math-container">\[\frac{1}{N}\sum_\mathbf{q} \left(z -  H_\mathbf{q} \right)^{-1} e^{i\mathbf{r}\cdot\mathbf{q}}  
+	=
+	\begin{pmatrix}
+		z\Omega^{u,v}_z
+		&amp;
+		- t\left[\Omega^{u,v}_z + \Omega^{u,v}_{+,z} \right]
+		\\
+		- t\left[\Omega^{u,v}_z + \Omega^{u,v}_{-,z}\right]
+		&amp;
+		z\Omega^{u,v}_z
+	\end{pmatrix}\,,
+	\\
+	\Omega^{u,v}_{\pm,z}
+	=
+	 \frac{1}{2\pi}\frac{1}{4t^2}
+	\oint dx \,2e^{i\left(u - v\right)x}\frac{\left(W - \sqrt{W - 1}\sqrt{W + 1}\right)^{|u+v\pm 1|}}{\sqrt{W - 1}\sqrt{W + 1}}\,.\]</p><p>Using the multiples of the basis vectors to describe the electronic states (<span>$|\mathbf{r},L\rangle\otimes|\sigma\rangle\rightarrow |u, v, L\rangle\otimes|\sigma\rangle$</span>), the matrix elements <span>$\langle u, v, L|\otimes\langle\sigma|(z - \hat{H})^{-1}|u&#39;, v&#39; ,L&#39;\rangle\otimes|\sigma&#39;\rangle$</span> of the Green&#39;s function become</p><p class="math-container">\[\langle L|\begin{pmatrix}
+		z\Omega^{u-u&#39;,v-v&#39;}_z
+		&amp;
+		- t\left[\Omega^{u-u&#39;,v-v&#39;}_z + \Omega^{u-u&#39;,v-v&#39;}_{+,z} \right]
+		\\
+		- t\left[\Omega^{u-u&#39;,v-v&#39;}_z + \Omega^{u-u&#39;,v-v&#39;}_{-,z}\right]
+		&amp;
+		z\Omega^{u-u&#39;,v-v&#39;}_z
+	\end{pmatrix}|L&#39;\rangle \delta_{\sigma\sigma&#39;}.\]</p><p>Depending on the sublattices of the two states, we pick out the appropriate element of the <span>$2\times 2$</span> matrix above.</p><h3 id="Graphene-Green&#39;s-Function"><a class="docs-heading-anchor" href="#Graphene-Green&#39;s-Function">Graphene Green&#39;s Function</a><a id="Graphene-Green&#39;s-Function-1"></a><a class="docs-heading-anchor-permalink" href="#Graphene-Green&#39;s-Function" title="Permalink"></a></h3><p>Following the general derivation above, the individual elements of the full real-space Green&#39;s function are</p><p class="math-container">\[\mathcal{G}_z^{jk}
+=  G_z^{jk}+\sum_{lm}G_z^{jl}\left\{\left[ \left(\Delta +  V\Gamma_zV^\dagger\right)^{-1}-
+G_z\right]^{-1}\right\}_{lm}G_z^{mk}\,,\]</p><p>where <span>$j$</span>, <span>$k$</span>, <span>$l$</span>, and <span>$m$</span> are compact labels for the graphene states <span>$|u, v ,L\rangle\otimes|\sigma\rangle$</span>. As written, the sum over <span>$l$</span> and <span>$m$</span> includes all the states in the system. However, the expression can be made considerably simpler. The term <span>$\Delta + V\Gamma_z V^\dagger$</span> is a square matrix including all the system states. Let us rearrange the elements in the matrix to give it a block diagonal form:</p><p class="math-container">\[\Delta + V\Gamma_zV^\dagger \rightarrow \begin{pmatrix}0&amp;0\\0&amp;A\end{pmatrix}\,,\]</p><p>where we created a square matrix <span>$A$</span> that contains only the perturbed states. Consequently,</p><p class="math-container">\[\left(\Delta + V\Gamma_zV^\dagger\right)^{-1} \rightarrow \begin{pmatrix}\infty &amp;0\\0&amp;A^{-1}\end{pmatrix}\]</p><p>and</p><p class="math-container">\[\left[ \left(\Delta +  V\Gamma_zV^\dagger\right)^{-1}-
+G_z\right]^{-1} \rightarrow \begin{pmatrix}0 &amp;0\\0&amp; \left[A^{-1} - \tilde{G}_z\right]^{-1}\end{pmatrix}\,,\]</p><p>where <span>$\tilde{G}_z$</span> is a portion of <span>$G_z$</span> that only includes the perturbed states. Hence, the <span>$lm$</span> summation only needs to run over these, too:</p><p class="math-container">\[\mathcal{G}_z^{jk}
+=  G_z^{jk}+\sum_{lm\in\mathrm{pert}}G_z^{jl}\left\{\left[ \left(\tilde{\Delta} +  \tilde{V}\Gamma_z\tilde{V}^\dagger\right)^{-1}-
+\tilde{G}_z\right]^{-1}\right\}_{lm}G_z^{mk}\,.\]</p><p>Here, the tilde over the matrices indicates that only the elements corresponding to the perturbed states are retained. Note that a particular state is included in <span>$\tilde{V}$</span> <em>and</em> <span>$\tilde{\Delta}$</span> even if it is perturbed by only one of the terms!</p><h3 id="Impurity-Green&#39;s-Function"><a class="docs-heading-anchor" href="#Impurity-Green&#39;s-Function">Impurity Green&#39;s Function</a><a id="Impurity-Green&#39;s-Function-1"></a><a class="docs-heading-anchor-permalink" href="#Impurity-Green&#39;s-Function" title="Permalink"></a></h3><p>For the full impurity Green&#39;s function, we follow the discussion above to obtain</p><p class="math-container">\[\Gamma_z + \Gamma_z \tilde{V}^\dagger \tilde{G}_z \left[1 - (\tilde{\Delta} + \tilde{V} \Gamma_z \tilde{V}^\dagger) \tilde{G}_z \right]^{-1} \tilde{V} \Gamma_z \, .\]</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="index.html">« Home</a><a class="docs-footer-nextpage" href="api.html">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.10 on <span class="colophon-date" title="Monday 25 October 2021 05:59">Monday 25 October 2021</span>. Using Julia version 1.6.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
