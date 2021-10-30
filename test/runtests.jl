@@ -233,6 +233,9 @@ end
 
     @test δΓ(rand_num, my_system) |> Diagonal ≈ conj.(δΓ(conj.(rand_num), my_system) |> Diagonal)
 
+    my_system2 = mkGrapheneSystem(0.0, 0.0, reverse([sp1, h1, h2, h3, imp1, imp2]))
+    @test δF(my_system) == δF(my_system2)
+
 end
 
 @testset "No defects present" begin
@@ -245,4 +248,5 @@ end
           [(0.0 + 0.0im), (0.0 + 0.0im)]
     @test δρ_R_graphene(s2, my_system) == 0.0
     @test δρ_R_graphene(s3, my_system) == 0.0
+    @test δF(my_system) == 0.0
 end
