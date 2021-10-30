@@ -150,6 +150,15 @@ function δF_integrand(z::ComplexF64, s::GrapheneSystem)
     return (-(res |> det |> log))
 end
 
+"""
+    δF(s::GrapheneSystem)
+
+The variation in free energy in graphene induced by defects in a given
+[`GrapheneSystem`](@ref).
+
+# Arguments
+* `s`: [`GrapheneSystem`](@ref) for which `δF` is calculated
+"""
 function δF(s::GrapheneSystem)
     if s.T == 0
         res = quadgk(
