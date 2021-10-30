@@ -135,21 +135,6 @@ function Γ(z::ComplexF64, s::GrapheneSystem)
     return res
 end
 
-function δF_integrand(z::ComplexF64, s::GrapheneSystem)
-
-    scatter_len = length(s.scattering_states)
-    prop_mat = propagator_matrix(z, s.scattering_states)
-
-    if length(s.imps) == 0
-        res = Diagonal(ones(scatter_len, scatter_len)) .- prop_mat * s.Δ
-    else
-        Γ0 = 1 ./ (z .- repeat(s.imps, 2)) |> Diagonal |> Array
-        res = Diagonal(ones(scatter_len, scatter_len)) .- prop_mat * (s.Δ .+ s.V * Γ0 * adjoint(s.V))
-    end
-
-    return (-(res |> det |> log))
-end
-
 """
     δF(s::GrapheneSystem)
 
@@ -160,6 +145,22 @@ The variation in free energy in graphene induced by defects in a given
 * `s`: [`GrapheneSystem`](@ref) for which `δF` is calculated
 """
 function δF(s::GrapheneSystem)
+    # Integrand helper function
+    function δF_integrand(z::ComplexF64, s::GrapheneSystem)
+
+        scatter_len = length(s.scattering_states)
+        prop_mat = propagator_matrix(z, s.scattering_states)
+
+        if length(s.imps) == 0
+            res = Diagonal(ones(scatter_len, scatter_len)) .- prop_mat * s.Δ
+        else
+            Γ0 = 1 ./ (z .- repeat(s.imps, 2)) |> Diagonal |> Array
+            res = Diagonal(ones(scatter_len, scatter_len)) .- prop_mat * (s.Δ .+ s.V * Γ0 * adjoint(s.V))
+        end
+
+        return (-(res |> det |> log))
+    end
+
     if s.T == 0
         res = quadgk(
             x -> real(δF_integrand(s.μ + 1im * x, s)),
