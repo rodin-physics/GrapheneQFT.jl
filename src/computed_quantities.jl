@@ -135,6 +135,37 @@ function Γ(z::ComplexF64, s::GrapheneSystem)
     return res
 end
 
+function δF_integrand(z::ComplexF64, s::GrapheneSystem)
+
+    scatter_len = length(s.scattering_states)
+    prop_mat = propagator_matrix(z, s.scattering_states)
+
+    if length(s.imps) == 0
+        res = Diagonal(ones(scatter_len, scatter_len)) .- prop_mat * s.Δ
+    else
+        Γ0 = 1 ./ (z .- repeat(s.imps, 2)) |> Diagonal |> Array
+        res = Diagonal(ones(scatter_len, scatter_len)) .- prop_mat * (s.Δ .+ s.V * Γ0 * adjoint(s.V))
+    end
+
+    return (-(res |> det |> log))
+end
+
+function δF(s::GrapheneSystem)
+    if s.T == 0
+        res = quadgk(
+            x -> real(δF_integrand(s.μ + 1im * x, s)),
+            0,
+            Inf,
+            rtol = 1e-2,
+            maxevals = 1e5
+        )
+    else
+        error("Finite T given")
+    end
+
+    return (res[1] / π)::Float64
+end
+
 """
     δρ_R_graphene(state::GrapheneState, s::GrapheneSystem)
 
@@ -152,6 +183,7 @@ function δρ_R_graphene(state::GrapheneState, s::GrapheneSystem)
             0,
             Inf,
             rtol = 1e-2,
+            maxevals = 1e5
         )
 
         return (res[1] / π)::Float64

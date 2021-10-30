@@ -68,7 +68,7 @@ h3 = Hopping(a3, a1, c3)
     @test isless(s1, s5) == false
 
     @test repr(a1) == "|0, 17, A⟩"
-    @test repr(s3) == "|3, -2, B⟩⊗|SpinUp⟩"
+    @test repr(s3) == "|3, -2, B⟩⊗|↑⟩"
 
 end
 
