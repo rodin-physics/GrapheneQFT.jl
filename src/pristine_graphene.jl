@@ -160,7 +160,7 @@ function graphene_multiple_neighbors(atom::GrapheneCoord, idx::Int)
     res = sort(
         res,
         by=a ->
-            norm(crystal_to_cartesian(atom) - crystal_to_cartesian(a)),
+            norm(crystal_to_cartesian(atom) .- crystal_to_cartesian(a)),
     )
     return res
 end
