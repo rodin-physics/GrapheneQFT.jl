@@ -4,3 +4,4 @@
 [![codecov.io](http://codecov.io/github/rodin-physics/GrapheneQFT.jl/coverage.svg?branch=main)](http://codecov.io/github/rodin-physics/GrapheneQFT.jl?branch=main)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://rodin-physics.github.io/GrapheneQFT.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://rodin-physics.github.io/GrapheneQFT.jl/dev)
+[![DOI](https://zenodo.org/badge/372015291.svg)](https://zenodo.org/badge/latestdoi/372015291)
