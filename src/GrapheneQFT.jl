@@ -32,7 +32,8 @@ export A,
     δΓ,
     Γ,
     δρ_R_graphene,
-    peierls_phase
+    peierls_phase,
+    δF
 
 include("computed_quantities.jl")
 

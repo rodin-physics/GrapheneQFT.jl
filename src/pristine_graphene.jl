@@ -81,7 +81,7 @@ end
 """
     GrapheneState(coord::GrapheneCoord, spin::Spin)
 
-Quantum state of an electron in graphene, denoted by 
+Quantum state of an electron in graphene, denoted by
 ``|u, v, L\\rangle\\otimes |\\sigma\\rangle`` in the drivation.
 
 The state is given by the [`GrapheneCoord`](@ref) of the orbital, as well as
@@ -93,7 +93,8 @@ struct GrapheneState
 end
 
 function Base.show(io::IO, a::GrapheneState)
-    print(io, a.coord, "⊗|", a.spin, "⟩")
+    spin_dict = Dict(SpinUp => "↑", SpinDown => "↓")
+    print(io, a.coord, "⊗|", get(spin_dict, a.spin, nothing), "⟩")
 end
 
 function Base.isless(a1::GrapheneState, a2::GrapheneState)
@@ -247,7 +248,7 @@ function graphene_propagator(a_l::GrapheneState, a_m::GrapheneState, z)
     end
 end
 
-        function propagator_matrix(z, States::Vector{GrapheneState})
+function propagator_matrix(z, States::Vector{GrapheneState})
     precomputed = Dict{Tuple{Int,Int,GrapheneQFT.Sublattice,GrapheneQFT.Sublattice,GrapheneQFT.Spin,GrapheneQFT.Spin,},ComplexF64,}()
 
     len_states = length(States)

@@ -68,7 +68,7 @@ h3 = Hopping(a3, a1, c3)
     @test isless(s1, s5) == false
 
     @test repr(a1) == "|0, 17, A⟩"
-    @test repr(s3) == "|3, -2, B⟩⊗|SpinUp⟩"
+    @test repr(s3) == "|3, -2, B⟩⊗|↑⟩"
 
 end
 
@@ -233,6 +233,9 @@ end
 
     @test δΓ(rand_num, my_system) |> Diagonal ≈ conj.(δΓ(conj.(rand_num), my_system) |> Diagonal)
 
+    my_system2 = mkGrapheneSystem(0.0, 0.0, reverse([sp1, h1, h2, h3, imp1, imp2]))
+    @test δF(my_system) == δF(my_system2)
+
 end
 
 @testset "No defects present" begin
@@ -245,4 +248,5 @@ end
           [(0.0 + 0.0im), (0.0 + 0.0im)]
     @test δρ_R_graphene(s2, my_system) == 0.0
     @test δρ_R_graphene(s3, my_system) == 0.0
+    @test δF(my_system) == 0.0
 end
