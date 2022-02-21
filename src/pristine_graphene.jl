@@ -1,12 +1,9 @@
 const NN_hopping = 2.8
 const graphene_lattice_constant = 2.46
 const sublattice_shift = -1 / √(3) * graphene_lattice_constant
-const graphene_d1 =
-    [graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
-const graphene_d2 =
-    [-graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
-const UC_area =
-    graphene_d1[1] * graphene_d2[2] - graphene_d1[2] * graphene_d2[1] |> abs
+const graphene_d1 = [graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
+const graphene_d2 = [-graphene_lattice_constant / 2, graphene_lattice_constant * √(3) / 2]
+const UC_area = graphene_d1[1] * graphene_d2[2] - graphene_d1[2] * graphene_d2[1] |> abs
 
 @data Sublattice begin
     A
@@ -25,7 +22,7 @@ function Base.isless(s1::Sublattice, s2::Sublattice)
         (A, B) => true
         _ => false
     end
-    end
+end
 
 @data Spin begin
     SpinUp
@@ -153,16 +150,10 @@ function graphene_multiple_neighbors(atom::GrapheneCoord, idx::Int)
     res = [atom]
     atoms = [atom]
     for ii = 1:idx
-        atoms =
-            filter(x -> x ∉ res, mapreduce(graphene_neighbors, vcat, atoms)) |>
-            unique
+        atoms = filter(x -> x ∉ res, mapreduce(graphene_neighbors, vcat, atoms)) |> unique
         res = vcat(res, atoms)
     end
-    res = sort(
-        res,
-        by=a ->
-            norm(crystal_to_cartesian(atom) .- crystal_to_cartesian(a)),
-    )
+    res = sort(res, by = a -> norm(crystal_to_cartesian(atom) .- crystal_to_cartesian(a)))
     return res
 end
 
@@ -172,8 +163,8 @@ end
 @inline function Ω_Integrand(z, u, v, x::Float64)
     W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
     res =
-        exp(1.0im * (u - v) * x) / cos(x) *
-        ((W - √(W - 1) * √(W + 1))^abs.(u + v)) / (√(W - 1) * √(W + 1))
+        exp(1.0im * (u - v) * x) / cos(x) * ((W - √(W - 1) * √(W + 1))^abs.(u + v)) /
+        (√(W - 1) * √(W + 1))
     return (isnan(res) ? 0.0 + 0.0im : res)
 end
 
@@ -182,19 +173,19 @@ end
         x -> 2 * Ω_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π / 3,
+        π / 2,
         2 * π / 3,
         π,
-        atol=1e-16,
-        rtol=1e-4,
+        atol = 1e-16,
+        rtol = 1e-4,
     ))[1])
 end
 
 @inline function Ωp_Integrand(z, u, v, x::Float64)
     W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
     res =
-        2 *
-        exp(1.0im * (u - v) * x) *
-        ((W - √(W - 1) * √(W + 1))^abs.(u + v + 1)) / (√(W - 1) * √(W + 1))
+        2 * exp(1.0im * (u - v) * x) * ((W - √(W - 1) * √(W + 1))^abs.(u + v + 1)) /
+        (√(W - 1) * √(W + 1))
     return (isnan(res) ? 0.0 + 0.0im : res)
 end
 
@@ -203,19 +194,19 @@ end
         x -> 2 * Ωp_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π / 3,
+        π / 2,
         2 * π / 3,
         π,
-        atol=1e-16,
-        rtol=1e-4,
+        atol = 1e-16,
+        rtol = 1e-4,
     ))[1])
 end
 
 @inline function Ωn_Integrand(z, u, v, x::Float64)
     W = ((z / NN_hopping)^2 - 1.0) / (4.0 * cos(x)) - cos(x) |> Complex
     res =
-        2 *
-        exp(1.0im * (u - v) * x) *
-        ((W - √(W - 1) * √(W + 1))^abs.(u + v - 1)) / (√(W - 1) * √(W + 1))
+        2 * exp(1.0im * (u - v) * x) * ((W - √(W - 1) * √(W + 1))^abs.(u + v - 1)) /
+        (√(W - 1) * √(W + 1))
     return (isnan(res) ? 0.0 + 0.0im : res)
 end
 
@@ -224,10 +215,11 @@ end
         x -> 2 * Ωn_Integrand(z, u, v, x) / (8.0 * π * NN_hopping^2),
         0.0,
         π / 3,
+        π / 2,
         2 * π / 3,
         π,
-        atol=1e-16,
-        rtol=1e-4,
+        atol = 1e-16,
+        rtol = 1e-4,
     ))[1])
 end
 
@@ -249,7 +241,17 @@ function graphene_propagator(a_l::GrapheneState, a_m::GrapheneState, z)
 end
 
 function propagator_matrix(z, States::Vector{GrapheneState})
-    precomputed = Dict{Tuple{Int,Int,GrapheneQFT.Sublattice,GrapheneQFT.Sublattice,GrapheneQFT.Spin,GrapheneQFT.Spin,},ComplexF64,}()
+    precomputed = Dict{
+        Tuple{
+            Int,
+            Int,
+            GrapheneQFT.Sublattice,
+            GrapheneQFT.Sublattice,
+            GrapheneQFT.Spin,
+            GrapheneQFT.Spin,
+        },
+        ComplexF64,
+    }()
 
     len_states = length(States)
     out = zeros(ComplexF64, len_states, len_states)
