@@ -1,2 +1,3 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+GrapheneQFT = "b903362a-f3fb-4fd6-ad42-15d1112bb05b"

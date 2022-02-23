@@ -6,6 +6,7 @@ makedocs(sitename="GrapheneQFT.jl Documentation",
          pages = [
             "Home" => "index.md",
             "Formalism" => "formalism.md",
+            "User Guide" => "guide.md",
             "API" => "api.md"
 
          ],
