@@ -1,6 +1,3 @@
-```@contents
-Pages = ["guide.md"]
-```
 # Getting Started
 ```@meta
 CurrentModule = GrapheneQFT
@@ -11,13 +8,17 @@ end
 ```@setup guide
 using GrapheneQFT
 ```
-[GrapheneQFT.jl](https://github.com/rodin-physics/GrapheneQFT.jl) is an extendable module that facilitates the field theoretic treatment of impurities on monolayer graphene. This guide is intended to provide the user with basic examples necessary to get started with the package, as well as intermediate examples that extend on the provided set of functions. For users interested in the derivation of the field theoretic calculations, the [formalism](@ref Formalism) is covered here.
+```@setup guide2
+using GrapheneQFT
+using Plots
+```
+[GrapheneQFT.jl](https://github.com/rodin-physics/GrapheneQFT.jl) is an extendable module that facilitates the field theoretic treatment of impurities on monolayer graphene. This guide is intended to provide the user with basic examples necessary to get started with the package, as well as intermediate examples that extend on the provided set of functions. For users interested in the derivation of the field theoretic calculations, the [formalism](@ref Formalism) is covered here. For users purely interested in trying out the package, the list of available functions and their relevance to physical quantities is available [here](@ref api).
 
 GrapheneQFT can be installed with the Julia package manager. In the Julia REPL, type `]` and run
 ```
 pkg> add GrapheneQFT
 ```
-After installation, the package is imported in the usual way:
+While still in the package manager, the test suite can be run with `test GrapheneQFT` to ensure the package is working correctly. After installation, the package is imported in the usual way:
 ```@repl
 using GrapheneQFT
 ```
@@ -91,8 +92,13 @@ nothing #hide
 
 ## Constructing a Graphene System
 To begin calculating relevant quantities, we must first assemble the necessary elements and construct a `GrapheneSystem`. To do so, we make use of the `mkGrapheneSystem`, which, as the name suggests, constructs a `GrapheneSystem` by taking in the chemical potential and temperature of the system and a vector of `Defect`s. The easiest system to construct is, of course, one that is free of defects and is comprised of just pristine graphene.
-```@repl guide
-pristine_sys = mkGrapheneSystem(0.1, 0.0, Defect[])
+```@example guide
+# Define chemical potential and temperature
+μ = 0.0
+T = 0.0
+
+# Define system
+pristine_sys = mkGrapheneSystem(μ, T, Defect[])
 ```
 Here, we have constructed a pristine system with chemical potential 0.1 eV and temperature at 0.0 K. Note that we have asserted the type of empty vector to be a vector of `Defect`s. As with all other structs, the fields of `GrapheneSystem` can be accessed in the usual way:
 ```@repl guide
@@ -120,7 +126,7 @@ state = GrapheneState(GrapheneCoord(0,1,A), SpinUp)
 pristine_sys = mkGrapheneSystem(0.0, 0.0, Defect[])
 
 # Define range of energies to calculate spectral function for
-ωs = range(-10, 10, step = 0.1)
+ωs = range(-9.5, 9.5, step = 0.05)
 nothing#hide
 ```
 Next, we can go ahead and calculate the spectral function by mapping the range of energies onto the `G_R` function.
@@ -142,7 +148,7 @@ savefig("spec_func.png"); nothing #hide
 ![](spec_func.png)
 
 ### Multiple Line Plots
-The astute reader would have noticed that `G_R` takes in a vector of `GrapheneState` Tuples, making it easy to calculate for multiple `GrapheneStates` simultaneously with a few manipulations of the data. Aa more interesting system is used as an example below.
+The astute reader would have noticed that `G_R` takes in a vector of `GrapheneState` Tuples, and the use of `[1]` in the script was to extract the first (and only) value in the result. The ability to generalize makes it easy to calculate `G_R` for multiple `GrapheneStates` simultaneously, with a few manipulations of the data. A more interesting system is used as an example below.
 ```@example guide
 using Plots#hide
 # Define coordinates and states
@@ -153,14 +159,19 @@ s1 = GrapheneState(c1, SpinUp)
 s2 = GrapheneState(c1, SpinDown)
 s3 = GrapheneState(c2, SpinUp)
 
-# Define system with a LocalSpin
-single_spin_sys = mkGrapheneSystem(0.0, 0.0, Defect[LocalSpin(0.0, 0.0, 0.1, c1)])
+# Define Defects
+spin1 = LocalSpin(0.0, 0.0, 0.5, c1)
+imp1 = ImpurityState(0.2,[(0.1, c2)])
+hoppings = [Hopping(c1, x, 0.15) for x in graphene_neighbors(c1)]
+
+# Define system with multiple Defects
+test_sys = mkGrapheneSystem(0.0, 0.0, vcat(spin1, imp1, hoppings))
 
 # Define range of energies to calculate spectral function for
-ωs = range(-10, 10, step = 0.1)
+ωs = range(-9.5, 9.5, step = 0.05)
 
 # Calculate Green's function
-greens_func_all = map(ω -> G_R(ω + 1im * 1e-6, [(s1, s1), (s2, s2), (s3, s3)], single_spin_sys), ωs)
+greens_func_all = map(ω -> G_R(ω + 1im * 1e-6, [(s1, s1), (s2, s2), (s3, s3)], test_sys), ωs)
 
 # Calculate and separate individual spectral functions
 spec_func_all = (-2/π) .* imag.(greens_func_all)
@@ -176,3 +187,69 @@ savefig("spec_func_multiple.png"); nothing #hide
 
 ```
 ![](spec_func_multiple.png)
+
+### Spatial Map
+In addition to a line plot of the spectral function across an energy range for a chosen `GrapheneState`, it is useful to plot spatial maps for a chosen energy. This particular example shows how to build functions on top of the existing functionality. Before the computation, we first define computation settings. These include a grid of `GrapheneCoord`s for both `A` and `B` sublattices and function to calculate the graphene spectral function for a `GrapheneState`.
+```@example spatial_spec
+using GrapheneQFT, Plots #hide
+# Define system chemical potential and temperature
+μ = 0.0
+T = 0.0
+
+# Define grid points and coordinate grids
+nPts = 20
+range_nPts = -nPts:1:nPts
+
+coord_A = [GrapheneCoord(u,v,A) for u in range_nPts, v in range_nPts] |> vec
+coord_B = [GrapheneCoord(u,v,B) for u in range_nPts, v in range_nPts] |> vec
+
+# Define function
+function spectral_graphene_spinUp(energy::Float64, coord::GrapheneCoord, sys::GrapheneSystem)
+    state = GrapheneState(coord, SpinUp)
+    res = (-2/π) * G_R(energy + 1im * 1e-6, [(state, state)], sys)
+    return imag(res[1])
+end
+nothing#hide
+```
+We can now define the system and calculate the spectral function over the coordinate grids.
+```julia
+# Define coordinates and states
+c1 = GrapheneCoord(0,0,A)
+c1_neighbors = graphene_neighbors(c1)
+
+# Define energy (eV) for spatial map
+ω = 0.1
+
+# Define GrapheneSystem with an ImpurityState at c1 and its neighbors
+test_sys = mkGrapheneSystem(0.1, 0.0, Defect[ImpurityState(0.2, vcat((0.15, c1), [(0.1, x) for x in c1_neighbors]))])
+
+# Calculation
+resA = map(x -> spectral_graphene_spinUp(ω, x, test_sys), coord_A)
+resB = map(x -> spectral_graphene_spinUp(ω, x, test_sys), coord_B)
+signal = vcat(resA, resB)
+```
+To plot, we make use of the `crystal_to_cartesian` function.
+```@example spatial_spec
+c1 = GrapheneCoord(0,0,A) #hide
+c1_neighbors = graphene_neighbors(c1) #hide
+ω = 0.1 #hide
+test_sys = mkGrapheneSystem(0.1, 0.0, Defect[ImpurityState(0.2, vcat((0.15, c1), [(0.1, x) for x in c1_neighbors]))]) #hide
+resA = map(x -> spectral_graphene_spinUp(ω, x, test_sys), coord_A) #hide
+resB = map(x -> spectral_graphene_spinUp(ω, x, test_sys), coord_B) #hide
+signal = vcat(resA, resB) #hide
+# Define Cartesian coordinates
+A_latt = crystal_to_cartesian.(coord_A)
+B_latt = crystal_to_cartesian.(coord_B)
+
+full_lattice = vcat(A_latt, B_latt)
+X_latt = first.(full_lattice)
+Y_latt = last.(full_lattice)
+
+scatter(X_latt, Y_latt,
+        marker_z = signal, markersize = 3,
+        xrange = (-40, 40), yrange = (-40, 40),
+        label = nothing, clims = (0.00468, 0.0047),
+        aspectratio = 1)
+savefig("spec_func_spatial.png"); #hide
+```
+![](spec_func_spatial.png)

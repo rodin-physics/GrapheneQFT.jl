@@ -1,4 +1,4 @@
-# API
+# [API](@id api)
 ```@index
 Modules = [GrapheneQFT]
 Order   = [:constant, :type, :function, :macro]
