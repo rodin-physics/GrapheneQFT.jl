@@ -2,8 +2,7 @@
 ```@meta
 CurrentModule = GrapheneQFT
 DocTestSetup  = quote
-    using GrapheneQFT
-    using Plots
+    using GrapheneQFT, Plots
 end
 ```
 ```@setup guide
@@ -11,7 +10,6 @@ using GrapheneQFT
 ```
 ```@setup guide2
 using GrapheneQFT
-import Pkg; Pkg.add("Plots")
 using Plots
 ```
 To view all functions and macros provided, run

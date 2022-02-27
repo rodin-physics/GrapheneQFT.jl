@@ -11,7 +11,6 @@ using GrapheneQFT
 ```
 ```@setup guide2
 using GrapheneQFT
-import Pkg; Pkg.add("Plots")
 using Plots
 ```
 The following set of examples focus on extracting experimentally relevant quantities using the functionality provided by GrapheneQFT and visualizing the output. Here, we use Plots.jl although any plotting backend can be used. Note that the syntax for plotting differs across backends.
