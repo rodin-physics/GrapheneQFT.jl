@@ -3,6 +3,7 @@
 CurrentModule = GrapheneQFT
 DocTestSetup  = quote
     using GrapheneQFT
+    using Plots
 end
 ```
 ```@setup guide

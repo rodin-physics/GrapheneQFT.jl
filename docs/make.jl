@@ -1,5 +1,6 @@
 using Documenter
 using GrapheneQFT
+using Plots
 
 push!(LOAD_PATH,"../src/")
 makedocs(sitename= "Documentation",
