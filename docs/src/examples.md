@@ -12,6 +12,7 @@ using GrapheneQFT
 ```@setup guide2
 using GrapheneQFT
 using Plots
+gr()
 ```
 The following set of examples focus on extracting experimentally relevant quantities using the functionality provided by GrapheneQFT and visualizing the output. Here, we use Plots.jl although any plotting backend can be used. Note that the syntax for plotting differs across backends.
 ```@contents
@@ -45,7 +46,7 @@ nothing#hide
 ```
 We plot this and recover the familiar graphene spectral function.
 ```@example spec_func
-using Plots
+using Plots; gr()
 plot(ωs, spec_func, color = "blue", label = "$state")
 ```
 
@@ -53,7 +54,7 @@ plot(ωs, spec_func, color = "blue", label = "$state")
 ### Multiple Line Plots
 The astute reader would have noticed that `G_R` takes in a vector of `GrapheneState` Tuples, and the use of `[1]` in the script was to extract the first (and only) value in the result. The ability to generalize makes it easy to calculate `G_R` for multiple `GrapheneStates` simultaneously, with a few manipulations of the data. A more interesting system is used as an example below.
 ```@example guide
-using Plots#hide
+using Plots; gr()#hide
 # Define coordinates and states
 c1 = GrapheneCoord(0,0,A)
 c2 = GrapheneCoord(1,2,B)
@@ -92,6 +93,7 @@ plot!(ωs, spec_func3, color = "green", label = "$s3")
 In addition to a line plot of the spectral function across an energy range for a chosen `GrapheneState`, it is useful to plot spatial maps for a chosen energy. This particular example shows how to build functions on top of the existing functionality. Before the computation, we first define computation settings. These include a grid of `GrapheneCoord`s for both `A` and `B` sublattices and a function to calculate the graphene spectral function for a `GrapheneState`.
 ```@example spatial_spec
 using GrapheneQFT, Plots #hide
+gr() #hide
 # Define system chemical potential and temperature
 μ = 0.0
 T = 0.0

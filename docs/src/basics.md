@@ -2,7 +2,7 @@
 ```@meta
 CurrentModule = GrapheneQFT
 DocTestSetup  = quote
-    using GrapheneQFT, Plots
+    using GrapheneQFT
 end
 ```
 ```@setup guide
