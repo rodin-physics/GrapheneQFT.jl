@@ -11,6 +11,7 @@ using GrapheneQFT
 ```
 ```@setup guide2
 using GrapheneQFT
+import Pkg; Pkg.add("Plots")
 using Plots
 ```
 To view all functions and macros provided, run
