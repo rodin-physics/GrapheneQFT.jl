@@ -1,4 +1,4 @@
-# Formalism
+# [Formalism](@id Formalism)
 
 ## General System
 

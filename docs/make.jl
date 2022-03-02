@@ -2,10 +2,15 @@ using Documenter
 using GrapheneQFT
 
 push!(LOAD_PATH,"../src/")
-makedocs(sitename="GrapheneQFT.jl Documentation",
+makedocs(sitename= "Documentation",
          pages = [
             "Home" => "index.md",
             "Formalism" => "formalism.md",
+            "User Guide" => [
+               "Installation" => "installation.md",
+               "Basics" => "basics.md",
+               "Examples" => "examples.md"
+            ],
             "API" => "api.md"
 
          ],
